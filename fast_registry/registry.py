@@ -42,13 +42,12 @@ class FastRegistry(typing.Generic[Type]):
     ```
     """
 
-    __registry_dict = {}
-
     @property
     def registry_dict(self) -> typing.Dict[str, Type]:
         return self.__registry_dict.copy()
 
     def __init__(self, item_type: typing.Optional[Type] = None):
+        self.__registry_dict = {}
         self.__item_type = item_type
 
     def is_registered(self, slug: str) -> bool:
