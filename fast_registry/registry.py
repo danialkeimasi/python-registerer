@@ -47,7 +47,7 @@ class FastRegistry(typing.Generic[Type]):
         return self.__registry_dict.copy()
 
     def __init__(self, item_type: typing.Optional[Type] = None):
-        self.__registry_dict = {}
+        self.__registry_dict: typing.Dict[str, Type] = {}
         self.__item_type = item_type
 
     def is_registered(self, slug: str) -> bool:
