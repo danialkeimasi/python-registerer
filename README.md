@@ -1,7 +1,18 @@
 # Fast Registry
-A generic class that can be used to register classes or functions, with type hints support.
+[![](https://img.shields.io/pypi/v/fast-registry.svg)](https://pypi.python.org/pypi/fast-registry/)
+[![](https://github.com/danialkeimasi/fast-registry/workflows/tests/badge.svg)](https://github.com/danialkeimasi/fast-registry/actions)
+[![](https://img.shields.io/github/license/danialkeimasi/fast-registry.svg)](https://github.com/danialkeimasi/fast-registry/blob/master/LICENSE)
 
-# Example
+A generic class that can be used to register classes or functions, with type hints support.
+# Installation
+
+```bash
+pip install fast-registry
+```
+
+# Register Classes
+You can enforce types on your concrete classes, and also use type hints on your text editors:
+
 ```py
 from fast_registry import FastRegistry
 
@@ -11,7 +22,7 @@ class Animal:
         raise NotImplementedError
 
 
-# create a registry that requires registered items to implement the Animal interface.
+# create a registry that requires registered items to implement the Animal interface:
 animal_registry = FastRegistry(Animal)
 
 @animal_registry("dog")
@@ -31,9 +42,25 @@ class Dog:
 'woof'
 ```
 
+# Register Functions
 
-# Installation
+You can also use this tool to register functions:
+```py
+from fast_registry import FastRegistry
 
-```bash
-pip install fast-registry
+
+registry = FastRegistry()
+
+
+@registry("foo")
+def foo():
+    return "bar"
+```
+
+```sh
+>>> registry["foo"]
+<function foo at 0x7f803c989fc0>
+
+>>> registry["foo"]()
+'bar'
 ```
