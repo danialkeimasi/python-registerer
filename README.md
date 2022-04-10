@@ -26,7 +26,7 @@ class Animal:
 animal_registry = FastRegistry(Animal)
 
 @animal_registry("dog")
-class Dog:
+class Dog(Animal):
     def talk(self):
         return "woof"
 ```
