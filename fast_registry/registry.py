@@ -69,6 +69,8 @@ class FastRegistry(typing.Generic[Type]):
         """
         register a new function or class
         """
+        if self.is_registered(slug):
+            raise ItemAlreadyRegistered(f"There is another item with slug='{slug}'.")
 
         def _wrapper_function(item):
             if self.__item_type is not None and not issubclass(item, self.__item_type):
@@ -77,8 +79,5 @@ class FastRegistry(typing.Generic[Type]):
             item.slug = slug
             self.__registry_dict[slug] = item
             return item
-
-        if self.is_registered(slug):
-            raise ItemAlreadyRegistered(f"There is another item with slug='{slug}'.")
 
         return _wrapper_function
