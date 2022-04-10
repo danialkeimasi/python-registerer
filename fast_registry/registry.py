@@ -1,7 +1,5 @@
 import typing
 
-Type = typing.TypeVar("Type")
-
 
 class ItemAlreadyRegistered(Exception):
     pass
@@ -9,6 +7,9 @@ class ItemAlreadyRegistered(Exception):
 
 class ItemNotRegistered(Exception):
     pass
+
+
+Type = typing.TypeVar("Type")
 
 
 class FastRegistry(typing.Generic[Type]):
@@ -41,24 +42,28 @@ class FastRegistry(typing.Generic[Type]):
     ```
     """
 
-    _registry = {}
+    __registry_dict = {}
+
+    @property
+    def registry_dict(self) -> typing.Dict[str, Type]:
+        return self.__registry_dict.copy()
 
     def __init__(self, item_type: typing.Optional[Type] = None):
-        pass
+        self.__item_type = item_type
 
     def is_registered(self, slug: str) -> bool:
         """
         is the slug registered?
         """
-        return slug in self._registry
+        return slug in self.__registry_dict
 
     def __contains__(self, slug: str) -> bool:
         return self.is_registered(slug)
 
     def __getitem__(self, slug: str) -> Type:
-        if slug not in self._registry:
+        if slug not in self.__registry_dict:
             raise ItemNotRegistered(f"The {slug} is not registered")
-        return self._registry[slug]
+        return self.__registry_dict[slug]
 
     def __call__(self, slug: str):
         """
@@ -66,8 +71,11 @@ class FastRegistry(typing.Generic[Type]):
         """
 
         def _wrapper_function(item):
+            if self.__item_type is not None and not issubclass(item, self.__item_type):
+                raise TypeError(f"'{item.__name__}' class should be a subclass of '{self.__item_type.__name__}'")
+
             item.slug = slug
-            self._registry[slug] = item
+            self.__registry_dict[slug] = item
             return item
 
         if self.is_registered(slug):
