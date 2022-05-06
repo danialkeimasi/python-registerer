@@ -13,7 +13,7 @@ pip install fast-registry
 # Register Classes
 Register classes with the same interface, enforce the type check and enjoy the benefits of type hints:
 
-![python fast-registry class example](./images/class-registration-example.png)
+![python fast-registry class example](https://raw.githubusercontent.com/danialkeimasi/python-fast-registry/main/images/class-registration-example.png)
 
 
 # Register Functions
@@ -30,14 +30,13 @@ database_registry = FastRegistry(
 @database_registry.register("sqlite")
 def sqlite_database_connection(name: str):
     return f"sqlite connection {name}"
-
 ```
 
 # Create Custom Validators
-Create your own validators to validate registered classes/functions if you need to. By Creating a subclass of `RegistryValidator`, you can create your own validators.
+By Creating a subclass of `RegistryValidator`, you can create your own validators to check registered classes/functions if you need to.
 
 # Examples
-- [Class - Simple Type Checking](./examples/class.py)
-- [Class - Custom Registration](./examples/class-with-custom-validator.py)
-- [Function - Simple](./examples/function.py)
-- [Function - With Type Annotation Validation](./examples/function-with-validator.py)
+- [Class - Simple Type Checking](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/class.py)
+- [Class - Custom Registration](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/class-with-custom-validator.py)
+- [Function - Simple](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/function.py)
+- [Function - With Type Annotation Validation](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/function-with-validator.py)
