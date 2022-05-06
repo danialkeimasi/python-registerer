@@ -12,36 +12,36 @@ class TestFastRegistry(unittest.TestCase):
         registry = FastRegistry()
 
         with self.assertRaises(ItemNotRegistered):
-            registry["foo"]
+            registry.get("foo")
 
     def test_register_duplicate(self):
         registry = FastRegistry()
 
-        @registry("foo")
+        @registry.register("foo")
         def foo():
             return "bar"
 
         with self.assertRaises(ItemAlreadyRegistered):
 
-            @registry("foo")
+            @registry.register("foo")
             def foo2():
                 return "bar2"
 
     def test_immutable_registry_dict(self):
         registry = FastRegistry()
         registry.registry_dict["foo"] = "bar"
-        self.assertTrue("foo" not in registry)
+        self.assertTrue(not registry.is_registered("foo"))
 
     def test_function_register(self):
         registry = FastRegistry()
 
-        @registry("foo")
+        @registry.register("foo")
         def foo():
             return "bar"
 
         self.assertTrue(registry.registry_dict == {"foo": foo})
-        self.assertTrue("foo" in registry)
-        self.assertTrue(registry["foo"]() == "bar")
+        self.assertTrue(registry.is_registered("foo"))
+        self.assertTrue(registry.get("foo")() == "bar")
 
     def test_class_register(self):
         class Parent:
@@ -49,21 +49,21 @@ class TestFastRegistry(unittest.TestCase):
 
         registry = FastRegistry(Parent)
 
-        @registry("child")
+        @registry.register("child")
         class Child(Parent):
             pass
 
         with self.assertRaises(TypeError):
 
-            @registry("unrelated")
+            @registry.register("unrelated")
             class Unrelated:
                 pass
 
         self.assertTrue(registry.registry_dict == {"child": Child})
-        self.assertTrue("child" in registry)
-        self.assertTrue("unrelated" not in registry)
+        self.assertTrue(registry.is_registered("child"))
+        self.assertTrue(not registry.is_registered("unrelated"))
 
-        instance = registry["child"]()
+        instance = registry.get("child")()
         self.assertTrue(isinstance(instance, Child))
         self.assertTrue(isinstance(instance, Parent))
 

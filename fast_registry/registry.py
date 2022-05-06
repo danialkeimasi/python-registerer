@@ -1,54 +1,46 @@
 import typing
 
-
-class ItemAlreadyRegistered(Exception):
-    pass
-
-
-class ItemNotRegistered(Exception):
-    pass
-
+from fast_registry.exceptions import (
+    ItemAlreadyRegistered,
+    ItemNotRegistered,
+    RegistrationError,
+)
+from fast_registry.validators import RegistryValidator
 
 Type = typing.TypeVar("Type")
 
 
 class FastRegistry(typing.Generic[Type]):
     """
-    A generic class that can be used to register classes or functions.
+    A generic class that can be used to create a registrey object to register class or functions.
     With type hints support.
-
-    - example
-    ```
-        class Animal:
-            def talk(self):
-                raise NotImplementedError
-
-        # create a registry that requires registered items to implement the Animal interface.
-        animal_registry = FastRegistry(Animal)
-
-        @animal_registry("dog")
-        class Dog:
-            def talk(self):
-                return "woof"
-
-        >> animal_registry["dog"]
-        <class '__main__.Dog'>
-
-        >> animal_registry["dog"]()
-        <__main__.Dog object at 0x7fda96d3b310>
-
-        >> animal_registry["dog"]().talk()
-        'woof'
-    ```
     """
+
+    __registry_dict: typing.Dict[str, Type] = {}
+    __item_type: typing.Optional[Type]
+    __validators: typing.List[RegistryValidator] = []
+
+    def __init__(
+        self,
+        item_type: typing.Optional[Type] = None,
+        validators: typing.Optional[typing.List[RegistryValidator]] = None,
+    ):
+        self.__registry_dict: typing.Dict[str, Type] = {}
+        self.__item_type = item_type
+        self.__validators = [] if validators is None else validators
+
+        for validator in self.__validators:
+            if not isinstance(validator, RegistryValidator):
+                raise RegistrationError(
+                    "the validator items should be objects of RegistryValidator or it's children."
+                )
 
     @property
     def registry_dict(self) -> typing.Dict[str, Type]:
+        """
+        get a copy of the registry dict
+        """
         return self.__registry_dict.copy()
-
-    def __init__(self, item_type: typing.Optional[Type] = None):
-        self.__registry_dict: typing.Dict[str, Type] = {}
-        self.__item_type = item_type
 
     def is_registered(self, slug: str) -> bool:
         """
@@ -56,24 +48,31 @@ class FastRegistry(typing.Generic[Type]):
         """
         return slug in self.__registry_dict
 
-    def __contains__(self, slug: str) -> bool:
-        return self.is_registered(slug)
-
-    def __getitem__(self, slug: str) -> Type:
-        if slug not in self.__registry_dict:
-            raise ItemNotRegistered(f"The {slug} is not registered")
+    def get(self, slug: str) -> Type:
+        """
+        get the registered item by slug
+        """
+        if not self.is_registered(slug):
+            raise ItemNotRegistered(f"The item with {slug=} is not registered.")
         return self.__registry_dict[slug]
 
-    def __call__(self, slug: str):
+    def register(self, slug: str):
         """
         register a new function or class
         """
         if self.is_registered(slug):
-            raise ItemAlreadyRegistered(f"There is another item with slug='{slug}'.")
+            raise ItemAlreadyRegistered(
+                f"There is another item already registered with {slug=}."
+            )
 
-        def _wrapper_function(item):
+        def _wrapper_function(item: Type):
             if self.__item_type is not None and not issubclass(item, self.__item_type):
-                raise TypeError(f"'{item.__name__}' class should be a subclass of '{self.__item_type.__name__}'")
+                raise TypeError(
+                    f"'{item.__name__}' class should be a subclass of '{self.__item_type.__name__}'."
+                )
+
+            for validator in self.__validators:
+                validator.on_register(slug, item, self.__registry_dict)
 
             item.slug = slug
             self.__registry_dict[slug] = item
