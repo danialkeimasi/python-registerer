@@ -3,64 +3,41 @@
 [![](https://github.com/danialkeimasi/fast-registry/workflows/tests/badge.svg)](https://github.com/danialkeimasi/fast-registry/actions)
 [![](https://img.shields.io/github/license/danialkeimasi/fast-registry.svg)](https://github.com/danialkeimasi/fast-registry/blob/master/LICENSE)
 
-A generic class that can be used to register classes or functions, with type hints support.
+Everything you need to implement maintainable and easy to use registry patterns in your project.
 # Installation
 
-```bash
+```sh
 pip install fast-registry
 ```
 
 # Register Classes
-You can enforce types on your concrete classes, and also use type hints on your text editors:
+Register classes with the same interface, enforce the type check and enjoy the benefits of type hints:
 
-```py
-from fast_registry import FastRegistry
+![python fast-registry class example](./images/class-registration-example.png)
 
-
-class Animal:
-    def talk(self):
-        raise NotImplementedError
-
-
-# create a registry that requires registered items to implement the Animal interface:
-animal_registry = FastRegistry(Animal)
-
-@animal_registry("dog")
-class Dog(Animal):
-    def talk(self):
-        return "woof"
-```
-
-```sh
->> animal_registry["dog"]
-<class '__main__.Dog'>
-
->> animal_registry["dog"]()
-<__main__.Dog object at 0x7fda96d3b310>
-
->> animal_registry["dog"]().talk()
-'woof'
-```
 
 # Register Functions
-
-You can also use this tool to register functions:
+Register functions and benefit from the function annotations validator (optional):
 ```py
-from fast_registry import FastRegistry
+from fast_registry import FastRegistry, FunctionAnnotationValidator
 
+database_registry = FastRegistry(
+    validators=[
+        FunctionAnnotationValidator(annotations=[("name", str)]),
+    ]
+)
 
-registry = FastRegistry()
+@database_registry.register("sqlite")
+def sqlite_database_connection(name: str):
+    return f"sqlite connection {name}"
 
-
-@registry("foo")
-def foo():
-    return "bar"
 ```
 
-```sh
->>> registry["foo"]
-<function foo at 0x7f803c989fc0>
+# Create Custom Validators
+Create your own validators to validate registered classes/functions if you need to. By Creating a subclass of `RegistryValidator`, you can create your own validators.
 
->>> registry["foo"]()
-'bar'
-```
+# Examples
+- [Class - Simple Type Checking](./examples/class.py)
+- [Class - Custom Registration](./examples/class-with-custom-validator.py)
+- [Function - Simple](./examples/function.py)
+- [Function - With Type Annotation Validation](./examples/function-with-validator.py)
