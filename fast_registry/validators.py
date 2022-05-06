@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import typing
 
 from fast_registry.exceptions import RegistrationError
@@ -28,7 +26,7 @@ class FunctionAnnotationValidator(RegistryValidator):
     use this validator to check annotations of registered functions
     """
 
-    def __init__(self, annotations: list[tuple[str, any]]) -> None:
+    def __init__(self, annotations: typing.List[typing.Tuple[str, any]]) -> None:
         self.expected_annotations = annotations
 
     def on_register(self, slug: str, item, registry_dict: typing.Dict[str, typing.Any]):
@@ -40,7 +38,7 @@ class FunctionAnnotationValidator(RegistryValidator):
         function_annotations = list(item.__annotations__.items())
         if self.expected_annotations != function_annotations:
             raise RegistrationError(
-                f"The '{item.__name__}' function with {slug=} do not match the expected annotations.\n"
+                f"The '{item.__name__}' function with slug='{slug}' do not match the expected annotations.\n"
                 f"Expected: {self.expected_annotations}\n"
                 f"Got: {function_annotations}"
             )

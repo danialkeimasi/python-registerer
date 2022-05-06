@@ -53,7 +53,7 @@ class FastRegistry(typing.Generic[Type]):
         get the registered item by slug
         """
         if not self.is_registered(slug):
-            raise ItemNotRegistered(f"The item with {slug=} is not registered.")
+            raise ItemNotRegistered(f"The item with slug='{slug}' is not registered.")
         return self.__registry_dict[slug]
 
     def register(self, slug: str):
@@ -62,7 +62,7 @@ class FastRegistry(typing.Generic[Type]):
         """
         if self.is_registered(slug):
             raise ItemAlreadyRegistered(
-                f"There is another item already registered with {slug=}."
+                f"There is another item already registered with slug='{slug}'."
             )
 
         def _wrapper_function(item: Type):
