@@ -1,11 +1,10 @@
 [tool.poetry]
 name = "fast-registry"
-version = "0.1.6"
-description = "A generic class that can be used to register classes or functions."
+version = "0.2.0"
+description = "Everything you need to implement maintainable and easy to use registry patterns in your project."
 authors = ["Danial Keimasi <danialkeimasi@gmail.com>"]
 license = "MIT"
-homepage = "https://github.com/danialkeimasi/fast-registry"
-repository = "https://github.com/danialkeimasi/fast-registry"
+homepage = "https://github.com/danialkeimasi/python-fast-registry"
 readme = "README.md"
 classifiers = [
     "Topic :: Software Development :: Build Tools",
@@ -13,7 +12,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/danialkeimasi/fast-registry/issues"
+"Bug Tracker" = "https://github.com/danialkeimasi/python-fast-registry/issues"
 
 [tool.poetry.dependencies]
 python = "^3.6"
