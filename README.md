@@ -37,6 +37,6 @@ By Creating a subclass of `RegistryValidator`, you can create your own validator
 
 # Examples
 - [Class - Simple Type Checking](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/class.py)
-- [Class - Custom Registration](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/class-with-custom-validator.py)
+- [Class - Custom Validator](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/class-with-custom-validator.py)
 - [Function - Simple](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/function.py)
-- [Function - With Type Annotation Validation](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/function-with-validator.py)
+- [Function - With Type Annotation Validator](https://github.com/danialkeimasi/python-fast-registry/blob/main/examples/function-with-validator.py)
