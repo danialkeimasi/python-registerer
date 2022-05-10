@@ -1,21 +1,21 @@
 import unittest
 
-from fast_registry.registry import (
-    FastRegistry,
+from registerer.registry import (
+    Registerer,
     ItemAlreadyRegistered,
     ItemNotRegistered,
 )
 
 
-class TestFastRegistry(unittest.TestCase):
+class Test(unittest.TestCase):
     def test_not_registered(self):
-        registry = FastRegistry()
+        registry = Registerer()
 
         with self.assertRaises(ItemNotRegistered):
             registry.get("foo")
 
     def test_register_duplicate(self):
-        registry = FastRegistry()
+        registry = Registerer()
 
         @registry.register("foo")
         def foo():
@@ -28,12 +28,12 @@ class TestFastRegistry(unittest.TestCase):
                 return "bar2"
 
     def test_immutable_registry_dict(self):
-        registry = FastRegistry()
+        registry = Registerer()
         registry.registry_dict["foo"] = "bar"
         self.assertTrue(not registry.is_registered("foo"))
 
     def test_function_register(self):
-        registry = FastRegistry()
+        registry = Registerer()
 
         @registry.register("foo")
         def foo():
@@ -47,7 +47,7 @@ class TestFastRegistry(unittest.TestCase):
         class Parent:
             pass
 
-        registry = FastRegistry(Parent)
+        registry = Registerer(Parent)
 
         @registry.register("child")
         class Child(Parent):

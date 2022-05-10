@@ -1,6 +1,6 @@
-from fast_registry import FastRegistry, FunctionAnnotationValidator, RegistrationError
+from registerer import Registerer, FunctionAnnotationValidator, RegistrationError
 
-database_registry = FastRegistry(
+database_registry = Registerer(
     validators=[
         FunctionAnnotationValidator(annotations=[("name", str)]),
     ]
@@ -13,7 +13,7 @@ def sqlite_database_connection(name: str):
 
 
 # failure:
-# fast_registry.exceptions.RegistrationError: The 'postgres_database_connection' function with slug='postgres' do not match the expected annotations.
+# registerer.exceptions.RegistrationError: The 'postgres_database_connection' function with slug='postgres' do not match the expected annotations.
 # Expected: [('name', <class 'str'>)]
 # Got: [('name', <class 'str'>), ('host', <class 'str'>)]
 @database_registry.register("postgres")

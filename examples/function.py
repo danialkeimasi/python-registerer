@@ -1,6 +1,6 @@
-from fast_registry import FastRegistry
+from registerer import Registerer
 
-database_registry = FastRegistry()
+database_registry = Registerer()
 
 
 @database_registry.register("sqlite")

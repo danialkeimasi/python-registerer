@@ -1,4 +1,4 @@
-from fast_registry import FastRegistry, RegistrationError, RegistryValidator
+from registerer import Registerer, RegistrationError, RegistryValidator
 
 
 class Animal:
@@ -13,7 +13,7 @@ class OnlyDomestic(RegistryValidator):
             )
 
 
-domestic_animals_registry = FastRegistry(Animal, validators=[OnlyDomestic()])
+domestic_animals_registry = Registerer(Animal, validators=[OnlyDomestic()])
 
 # success:
 @domestic_animals_registry.register("cow")
@@ -22,7 +22,7 @@ class Cow(Animal):
 
 
 # failure:
-# raises fast_registry.exceptions.RegistrationError: Lion is wild, only domestic animals are allowed to register.
+# raises registerer.exceptions.RegistrationError: Lion is wild, only domestic animals are allowed to register.
 @domestic_animals_registry.register("lion")
 class Lion(Animal):
     is_wild = True

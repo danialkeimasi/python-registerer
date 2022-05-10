@@ -1,3 +1,3 @@
 from .exceptions import *
-from .registry import FastRegistry
+from .registry import Registerer
 from .validators import RegistryValidator, FunctionAnnotationValidator

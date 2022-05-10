@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "fast-registry"
+name = "registerer"
 version = "0.2.1"
 description = "Everything you need to implement maintainable and easy to use registry patterns in your project."
 authors = ["Danial Keimasi <danialkeimasi@gmail.com>"]
 license = "MIT"
-homepage = "https://github.com/danialkeimasi/python-fast-registry"
+homepage = "https://github.com/danialkeimasi/python-registerer"
 readme = "README.md"
 classifiers = [
     "Topic :: Software Development :: Build Tools",
@@ -12,7 +12,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/danialkeimasi/python-fast-registry/issues"
+"Bug Tracker" = "https://github.com/danialkeimasi/python-registerer/issues"
 
 [tool.poetry.dependencies]
 python = "^3.6"

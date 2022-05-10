@@ -1,18 +1,18 @@
-from fast_registry import FastRegistry
+from registerer import Registerer
 
 
 class Animal:
-    def talk(self):
+    def talk(self) -> None:
         raise NotImplementedError
 
 
 # create a registry that requires registered items to implement the Animal interface:
-animal_registry = FastRegistry(Animal)
+animal_registry = Registerer(Animal)
 
 
 @animal_registry.register("dog")
 class Dog(Animal):
-    def talk(self):
+    def talk(self) -> None:
         return "woof"
 
 

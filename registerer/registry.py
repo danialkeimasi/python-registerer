@@ -1,16 +1,16 @@
 import typing
 
-from fast_registry.exceptions import (
+from registerer.exceptions import (
     ItemAlreadyRegistered,
     ItemNotRegistered,
     RegistrationError,
 )
-from fast_registry.validators import RegistryValidator
+from registerer.validators import RegistryValidator
 
 Type = typing.TypeVar("Type")
 
 
-class FastRegistry(typing.Generic[Type]):
+class Registerer(typing.Generic[Type]):
     """
     A generic class that can be used to create a registrey object to register class or functions.
     With type hints support.
