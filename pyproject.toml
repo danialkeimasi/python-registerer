@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "registerer"
-version = "0.2.1"
+version = "0.2.3"
 description = "Everything you need to implement maintainable and easy to use registry patterns in your project."
 authors = ["Danial Keimasi <danialkeimasi@gmail.com>"]
 license = "MIT"
