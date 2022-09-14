@@ -32,6 +32,7 @@ class Test(unittest.TestCase):
             return "bar"
 
         self.assertTrue(registry.registry_dict == {"foo": foo})
+        self.assertTrue(list(registry.items) == [foo])
         self.assertTrue(registry.is_registered("foo"))
         self.assertTrue(registry["foo"]() == "bar")
 
@@ -58,6 +59,37 @@ class Test(unittest.TestCase):
         instance = registry["child"]()
         self.assertTrue(isinstance(instance, Child))
         self.assertTrue(isinstance(instance, Parent))
+
+    def test_max_size(self):
+        registry = Registerer(max_size=1)
+
+        @registry.register
+        def foo():
+            pass
+
+        with self.assertRaises(RegistrationError):
+
+            @registry.register()
+            def foo():
+                pass
+
+        with self.assertRaises(RegistrationError):
+
+            @registry.register
+            def foo2():
+                pass
+
+    def avoid_registering_registerer(self):
+        class Parent(Registerer):
+            pass
+
+        registry = Registerer(Parent)
+
+        with self.assertRaises(RegistrationError):
+
+            @registry.register
+            class Child(Parent):
+                pass
 
 
 if __name__ == "__main__":
