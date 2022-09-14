@@ -278,14 +278,6 @@ validate the item during registration.
 #### <kbd>class</kbd> `RegistryValidator`
 a utility for custom validation with the Registerer. you can subclass this and override the on_register method, and raise an exception if you must. 
 
-
-
-**examples:**
- 
-
-```python
-
-
 ### <kbd>method</kbd> `RegistryValidator.__init__`
 
 ```python
