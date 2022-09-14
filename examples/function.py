@@ -3,18 +3,19 @@ from registerer import Registerer
 database_registry = Registerer()
 
 
-@database_registry.register("sqlite")
-def sqlite_database_connection():
+@database_registry.register
+def sqlite():
     return "sqlite connection"
 
 
 @database_registry.register("postgres")
-def postgres_database_connection():
+def postgres_backup():
     return "postgres connection"
 
 
 def main():
-    print(database_registry.get("postgres")())  # postgres connection
+    print(database_registry["sqlite"]())  # sqlite connection
+    print(database_registry["postgres"]())  # postgres connection
 
 
 if __name__ == "__main__":

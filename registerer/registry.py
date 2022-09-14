@@ -1,3 +1,4 @@
+import inspect
 import typing
 
 from registerer.exceptions import (
@@ -11,71 +12,154 @@ Type = typing.TypeVar("Type")
 
 
 class Registerer(typing.Generic[Type]):
-    """
-    A generic class that can be used to create a registrey object to register class or functions.
-    With type hints support.
-    """
+    """A utility that can be used to create a registry object to register class or functions."""
 
-    __registry_dict: typing.Dict[str, Type] = {}
-    __item_type: typing.Optional[Type]
-    __validators: typing.List[RegistryValidator] = []
+    registry_dict: typing.Dict[str, Type] = None
+    parent_item: typing.Optional[typing.Type[Type]] = None
+    max_size: typing.Optional[int] = None
+    validators: typing.Optional[typing.List] = None
 
     def __init__(
         self,
-        item_type: typing.Optional[Type] = None,
-        validators: typing.Optional[typing.List[RegistryValidator]] = None,
+        parent_item: typing.Optional[typing.Type[Type]] = None,
+        *,
+        max_size: int = None,
+        validators: typing.Optional[typing.List] = None,
     ):
-        self.__registry_dict: typing.Dict[str, Type] = {}
-        self.__item_type = item_type
-        self.__validators = [] if validators is None else validators
+        """
+        Args:
+            parent_item: The class of parent. Defaults to None.
+            max_size: allowed size of registered items. Defaults to None.
+            validators: validate each item on register. Defaults to None.
+        """
+        self.registry_dict = {}
+        self.parent_item = parent_item if parent_item else self.parent_item
+        self.max_size = max_size
+        self.validators = (validators if validators else []) + (self.validators if self.validators else [])
 
-        for validator in self.__validators:
+        for validator in self.validators:
             if not isinstance(validator, RegistryValidator):
-                raise RegistrationError(
-                    "the validator items should be objects of RegistryValidator or it's children."
-                )
+                raise RegistrationError("the validator items should be objects of RegistryValidator or it's children.")
 
     @property
-    def registry_dict(self) -> typing.Dict[str, Type]:
+    def items(self) -> typing.Any:
         """
-        get a copy of the registry dict
+        get actual registered items (classes or functions)
         """
-        return self.__registry_dict.copy()
+        for item in self.registry_dict.values():
+            yield item
 
     def is_registered(self, slug: str) -> bool:
         """
         is the slug registered?
         """
-        return slug in self.__registry_dict
+        return slug in self.registry_dict
 
-    def get(self, slug: str) -> Type:
+    def __getitem__(self, registry_slug: str) -> Type:
         """
         get the registered item by slug
         """
-        if not self.is_registered(slug):
-            raise ItemNotRegistered(f"The item with slug='{slug}' is not registered.")
-        return self.__registry_dict[slug]
+        try:
+            return self.registry_dict[registry_slug]
+        except KeyError:
+            raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
-    def register(self, slug: str):
+    def validate(self, item: Type):
+        """validate the item during registration.
+
+        Args:
+            item (Type): item want to register.
+
+        Raises:
+            RegistrationError: can't register this item.
         """
-        register a new function or class
+        if self.parent_item is not None and inspect.isclass(item) and not issubclass(item, self.parent_item):
+            raise RegistrationError(f"'{item.__name__}' class should be a subclass of '{self.parent_item.__name__}'.")
+
+        if inspect.isclass(item) and issubclass(item, Registerer):
+            raise RegistrationError(f"Don't register a class inherited from Registerer. It's anti-pattern.")
+
+        if self.max_size is not None and len(self.registry_dict) >= self.max_size:
+            raise RegistrationError(f"You can't register more than {self.max_size} items to this registry.")
+
+        for validator in self.validators:
+            validator(item)
+
+    def __register(self, custom_slug: str = None, **kwargs):
+        """the inner function that handles register
+
+        Args:
+            custom_slug (str): the unique identifier for the item.
+
+        Raises:
+            ItemAlreadyRegistered: There is another item already registered with this slug.
+            RegistrationError: can't register this item.
         """
-        if self.is_registered(slug):
-            raise ItemAlreadyRegistered(
-                f"There is another item already registered with slug='{slug}'."
-            )
 
         def _wrapper_function(item: Type):
-            if self.__item_type is not None and not issubclass(item, self.__item_type):
-                raise TypeError(
-                    f"'{item.__name__}' class should be a subclass of '{self.__item_type.__name__}'."
-                )
+            registry_slug = custom_slug if custom_slug else item.__name__
 
-            for validator in self.__validators:
-                validator.on_register(slug, item, self.__registry_dict)
+            if self.is_registered(registry_slug):
+                raise ItemAlreadyRegistered(f"There is another item already registered with slug='{registry_slug}'.")
 
-            item.slug = slug
-            self.__registry_dict[slug] = item
+            item.registry_slug = registry_slug
+            for key, value in kwargs.items():
+                setattr(item, key, value)
+
+            self.validate(item)
+
+            self.registry_dict[registry_slug] = item
             return item
 
         return _wrapper_function
+
+    def register(self, *args, **kwargs):
+        """register a class or item to the registry
+        example:
+
+        ```python
+        # register the item with it's name
+        @registry.register
+        class Foo:
+            pass
+
+        assert registry["Foo"] == Foo
+
+
+        # register the item with a custom name
+        @registry.register("bar")
+        class Bar:
+            pass
+
+        assert registry["bar"] == Bar
+
+
+        # register the item with a custom name and also add some other attributes to it.
+        # it is more useful when registering functions.
+        @db_registry.register("postgresql", env="prod")
+        def postgresql_connection:
+            pass
+
+        assert registry["postgresql"] == postgresql_connection
+        assert postgresql_connection.env == "prod"
+
+        ```
+
+        """
+        if len(args) == 1 and kwargs == {} and (inspect.isfunction(args[0]) or inspect.isclass(args[0])):
+            # register function is not called
+            return self.__register()(args[0])
+
+        if len(args) == 0 and kwargs == {}:
+            # unnecessary call
+            raise RegistrationError(
+                "Pass the registry_slug as positional argument"
+                "or just don't call the register function to use the name of item."
+            )
+
+        return self.__register(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        parent = f"{self.parent_item.__name__}" if self.parent_item else ""
+        count = f"count={len(self.registry_dict)}"
+        return f"<{parent}Registry {count}>"

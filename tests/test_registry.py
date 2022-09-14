@@ -1,10 +1,7 @@
 import unittest
 
-from registerer.registry import (
-    Registerer,
-    ItemAlreadyRegistered,
-    ItemNotRegistered,
-)
+from registerer.exceptions import RegistrationError
+from registerer.registry import ItemAlreadyRegistered, ItemNotRegistered, Registerer
 
 
 class Test(unittest.TestCase):
@@ -12,12 +9,12 @@ class Test(unittest.TestCase):
         registry = Registerer()
 
         with self.assertRaises(ItemNotRegistered):
-            registry.get("foo")
+            registry["foo"]
 
     def test_register_duplicate(self):
         registry = Registerer()
 
-        @registry.register("foo")
+        @registry.register
         def foo():
             return "bar"
 
@@ -27,21 +24,16 @@ class Test(unittest.TestCase):
             def foo2():
                 return "bar2"
 
-    def test_immutable_registry_dict(self):
-        registry = Registerer()
-        registry.registry_dict["foo"] = "bar"
-        self.assertTrue(not registry.is_registered("foo"))
-
     def test_function_register(self):
         registry = Registerer()
 
-        @registry.register("foo")
+        @registry.register
         def foo():
             return "bar"
 
         self.assertTrue(registry.registry_dict == {"foo": foo})
         self.assertTrue(registry.is_registered("foo"))
-        self.assertTrue(registry.get("foo")() == "bar")
+        self.assertTrue(registry["foo"]() == "bar")
 
     def test_class_register(self):
         class Parent:
@@ -53,7 +45,7 @@ class Test(unittest.TestCase):
         class Child(Parent):
             pass
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(RegistrationError):
 
             @registry.register("unrelated")
             class Unrelated:
@@ -63,7 +55,7 @@ class Test(unittest.TestCase):
         self.assertTrue(registry.is_registered("child"))
         self.assertTrue(not registry.is_registered("unrelated"))
 
-        instance = registry.get("child")()
+        instance = registry["child"]()
         self.assertTrue(isinstance(instance, Child))
         self.assertTrue(isinstance(instance, Parent))
 

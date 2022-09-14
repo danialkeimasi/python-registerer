@@ -1,9 +1,7 @@
-from registerer import Registerer, FunctionAnnotationValidator, RegistrationError
+import registerer
 
-database_registry = Registerer(
-    validators=[
-        FunctionAnnotationValidator(annotations=[("name", str)]),
-    ]
+database_registry = registerer.Registerer(
+    validators=[registerer.RegistryValidator(lambda item: not getattr(item, "fail", False))]
 )
 
 # success:
@@ -13,16 +11,14 @@ def sqlite_database_connection(name: str):
 
 
 # failure:
-# registerer.exceptions.RegistrationError: The 'postgres_database_connection' function with slug='postgres' do not match the expected annotations.
-# Expected: [('name', <class 'str'>)]
-# Got: [('name', <class 'str'>), ('host', <class 'str'>)]
-@database_registry.register("postgres")
-def postgres_database_connection(name: str, host: str):
+# registerer.exceptions.RegistrationError: custom validation failed when registering postgres_database_connection
+@database_registry.register("postgres", fail=True)
+def postgres_database_connection(name: str):
     return f"postgres connection {name}"
 
 
 def main():
-    print(database_registry.get("postgres")("personal"))  # postgres connection personal
+    print(database_registry["postgres"]("personal"))  # postgres connection personal
 
 
 if __name__ == "__main__":
