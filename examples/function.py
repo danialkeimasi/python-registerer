@@ -1,3 +1,5 @@
+# Register functions:
+
 from registerer import Registerer
 
 database_registry = Registerer()

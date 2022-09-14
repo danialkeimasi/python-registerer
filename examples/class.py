@@ -1,3 +1,7 @@
+# Register classes with the same interface,
+# enforce the type check and enjoy the benefits of type hints:
+
+
 from registerer import Registerer
 
 

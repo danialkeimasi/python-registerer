@@ -7,6 +7,12 @@ class RegistryValidator:
     """
     a utility for custom validation with the Registerer.
     you can subclass this and override the on_register method, and raise an exception if you must.
+
+    examples:
+
+    ```python
+
+
     """
 
     def __init__(self, validator, *, error: str = None) -> None:
