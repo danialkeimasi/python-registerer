@@ -8,29 +8,36 @@ from registerer.exceptions import (
 )
 from registerer.validators import RegistryValidator
 
-Type = typing.TypeVar("Type")
+T = typing.TypeVar("T")
 
 
-class Registerer(typing.Generic[Type]):
+class Registerer(typing.Generic[T]):
     """A utility that can be used to create a registry object to register class or functions."""
 
-    registry_dict: typing.Dict[str, Type] = None
-    parent_item: typing.Optional[typing.Type[Type]] = None
+    registry_dict: typing.Dict[str, T] = None
+    parent_item: typing.Optional[T] = None
     max_size: typing.Optional[int] = None
     validators: typing.Optional[typing.List] = None
 
     def __init__(
         self,
-        parent_item: typing.Optional[typing.Type[Type]] = None,
         *,
-        max_size: int = None,
-        validators: typing.Optional[typing.List] = None,
+        parent_item: typing.Optional[T] = None,
+        max_size: typing.Optional[int] = None,
+        validators: typing.Optional[typing.List[RegistryValidator]] = None,
     ):
         """
         Args:
-            parent_item: The class of parent. Defaults to None.
-            max_size: allowed size of registered items. Defaults to None.
-            validators: validate each item on register. Defaults to None.
+            parent_item: The class of parent.
+                If you set this, the registered class should be subclass of the this,
+                If it's not the register method going to raise RegistrationError.
+                Also by setting this you'll be benefit from type hints in your IDE.
+            max_size: allowed size of registered items.
+                Defaults to None which means there is no limit.
+            validators: custom validation for on registering items.
+
+        Raises:
+            RegistryCreationError: Can't create proper registry object.
         """
         self.registry_dict = {}
         self.parent_item = parent_item if parent_item else self.parent_item
@@ -45,12 +52,11 @@ class Registerer(typing.Generic[Type]):
                 raise RegistryCreationError("validator items should be function or object of RegistryValidator.")
 
     @property
-    def items(self) -> typing.Any:
+    def items(self) -> typing.List[T]:
         """
-        get actual registered items (classes or functions)
+        get actual registered items as list (classes or functions)
         """
-        for item in self.registry_dict.values():
-            yield item
+        return list(self.registry_dict.values())
 
     def is_registered(self, slug: str) -> bool:
         """
@@ -58,7 +64,7 @@ class Registerer(typing.Generic[Type]):
         """
         return slug in self.registry_dict
 
-    def __getitem__(self, registry_slug: str) -> Type:
+    def __getitem__(self, registry_slug: str) -> T:
         """
         get the registered item by slug
         """
@@ -67,11 +73,11 @@ class Registerer(typing.Generic[Type]):
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
-    def validate(self, item: Type):
+    def validate(self, item: T):
         """validate the item during registration.
 
         Args:
-            item (Type): item want to register.
+            item (T): item want to register.
 
         Raises:
             RegistrationError: can't register this item.
@@ -99,7 +105,7 @@ class Registerer(typing.Generic[Type]):
             RegistrationError: can't register this item.
         """
 
-        def _wrapper_function(item: Type):
+        def _wrapper_function(item: T):
             registry_slug = custom_slug if custom_slug else item.__name__
 
             if self.is_registered(registry_slug):
