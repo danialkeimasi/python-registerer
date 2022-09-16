@@ -2,9 +2,9 @@ import inspect
 import typing
 
 from registerer.exceptions import (
-    ItemAlreadyRegistered,
     ItemNotRegistered,
     RegistrationError,
+    RegistryCreationError,
 )
 from registerer.validators import RegistryValidator
 
@@ -37,9 +37,12 @@ class Registerer(typing.Generic[Type]):
         self.max_size = max_size
         self.validators = (validators if validators else []) + (self.validators if self.validators else [])
 
+        if self.max_size is not None and (not isinstance(self.max_size, int) or self.max_size <= 0):
+            raise RegistryCreationError("max_size should be a int bigger than zero or None.")
+
         for validator in self.validators:
             if not isinstance(validator, RegistryValidator):
-                raise RegistrationError("the validator items should be objects of RegistryValidator or it's children.")
+                raise RegistryCreationError("validator items should be function or object of RegistryValidator.")
 
     @property
     def items(self) -> typing.Any:
@@ -100,7 +103,7 @@ class Registerer(typing.Generic[Type]):
             registry_slug = custom_slug if custom_slug else item.__name__
 
             if self.is_registered(registry_slug):
-                raise ItemAlreadyRegistered(f"There is another item already registered with slug='{registry_slug}'.")
+                raise RegistrationError(f"There is another item already registered with slug='{registry_slug}'.")
 
             item.registry_slug = registry_slug
             for key, value in kwargs.items():

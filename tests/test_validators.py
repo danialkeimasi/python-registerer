@@ -8,7 +8,7 @@ class Test(unittest.TestCase):
 
         registry = Registerer(
             validators=[
-                RegistryValidator(lambda item: item.registry_slug != "no"),
+                RegistryValidator(lambda item: item.registry_slug != "no", error="oh no, registered class is not ok!"),
             ],
         )
 

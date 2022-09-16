@@ -1,7 +1,11 @@
 import unittest
 
-from registerer.exceptions import RegistrationError
-from registerer.registry import ItemAlreadyRegistered, ItemNotRegistered, Registerer
+from registerer import (
+    ItemNotRegistered,
+    Registerer,
+    RegistrationError,
+    RegistryCreationError,
+)
 
 
 class Test(unittest.TestCase):
@@ -16,13 +20,13 @@ class Test(unittest.TestCase):
 
         @registry.register
         def foo():
-            return "bar"
+            pass
 
-        with self.assertRaises(ItemAlreadyRegistered):
+        with self.assertRaises(RegistrationError):
 
             @registry.register("foo")
             def foo2():
-                return "bar2"
+                pass
 
     def test_function_register(self):
         registry = Registerer()
@@ -79,7 +83,7 @@ class Test(unittest.TestCase):
             def foo2():
                 pass
 
-    def avoid_registering_registerer(self):
+    def test_avoid_registering_registerer(self):
         class Parent(Registerer):
             pass
 
@@ -90,6 +94,33 @@ class Test(unittest.TestCase):
             @registry.register
             class Child(Parent):
                 pass
+
+    def test_constructor(self):
+
+        with self.assertRaises(RegistryCreationError):
+            Registerer(validators=[lambda item: True])
+
+        with self.assertRaises(RegistryCreationError):
+            Registerer(max_size=0)
+
+        with self.assertRaises(RegistryCreationError):
+            Registerer(max_size=0.2)
+
+    def test_function_attribute_setter(self):
+        registry = Registerer()
+
+        @registry.register(branch="test")
+        def test():
+            pass
+
+        @registry.register("prod", branch="prod")
+        def postgres_prod():
+            pass
+
+        self.assertTrue(test.branch == "test")
+        self.assertTrue(registry["test"].branch == "test")
+        self.assertTrue(postgres_prod.branch == "prod")
+        self.assertTrue(registry["prod"].branch == "prod")
 
 
 if __name__ == "__main__":

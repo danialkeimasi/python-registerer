@@ -305,8 +305,8 @@ __init__(validator, error: str = None) → None
 
 ---
 
-#### <kbd>class</kbd> `RegistrationError`
-Errors that occurs on registering new item. 
+#### <kbd>class</kbd> `RegistryCreationError`
+Errors that occurs on creating a registry object. 
 
 
 
@@ -314,8 +314,8 @@ Errors that occurs on registering new item.
 
 ---
 
-#### <kbd>class</kbd> `ItemAlreadyRegistered`
-You've registered a item with duplicate identifier. 
+#### <kbd>class</kbd> `RegistrationError`
+Errors that occurs on registering new item. 
 
 
 
