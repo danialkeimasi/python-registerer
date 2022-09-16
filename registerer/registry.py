@@ -21,8 +21,8 @@ class Registerer(typing.Generic[T]):
 
     def __init__(
         self,
-        *,
         parent_item: typing.Optional[T] = None,
+        *,
         max_size: typing.Optional[int] = None,
         validators: typing.Optional[typing.List[RegistryValidator]] = None,
     ):
