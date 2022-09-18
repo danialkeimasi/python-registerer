@@ -35,7 +35,7 @@ class Test(unittest.TestCase):
         def foo():
             return "bar"
 
-        self.assertTrue(registry.registry_dict == {"foo": foo})
+        self.assertTrue(registry._registry_dict == {"foo": foo})
         self.assertTrue(list(registry.items) == [foo])
         self.assertTrue(registry.is_registered("foo"))
         self.assertTrue(registry["foo"]() == "bar")
@@ -56,7 +56,7 @@ class Test(unittest.TestCase):
             class Unrelated:
                 pass
 
-        self.assertTrue(registry.registry_dict == {"child": Child})
+        self.assertTrue(registry._registry_dict == {"child": Child})
         self.assertTrue(registry.is_registered("child"))
         self.assertTrue(not registry.is_registered("unrelated"))
 

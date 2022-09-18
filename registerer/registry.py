@@ -14,21 +14,21 @@ T = typing.TypeVar("T")
 class Registerer(typing.Generic[T]):
     """A utility that can be used to create a registry object to register class or functions."""
 
-    registry_dict: typing.Dict[str, T] = None
-    parent_item: typing.Optional[T] = None
+    _registry_dict: typing.Dict[str, T] = None
+    parent_class: typing.Optional[T] = None
     max_size: typing.Optional[int] = None
     validators: typing.Optional[typing.List] = None
 
     def __init__(
         self,
-        parent_item: typing.Optional[T] = None,
+        parent_class: typing.Optional[T] = None,
         *,
         max_size: typing.Optional[int] = None,
         validators: typing.Optional[typing.List[RegistryValidator]] = None,
     ):
         """
         Args:
-            parent_item: The class of parent.
+            parent_class: The class of parent.
                 If you set this, the registered class should be subclass of the this,
                 If it's not the register method going to raise RegistrationError.
                 Also by setting this you'll be benefit from type hints in your IDE.
@@ -39,8 +39,8 @@ class Registerer(typing.Generic[T]):
         Raises:
             RegistryCreationError: Can't create proper registry object.
         """
-        self.registry_dict = {}
-        self.parent_item = parent_item if parent_item else self.parent_item
+        self._registry_dict = {}
+        self.parent_class = parent_class if parent_class else self.parent_class
         self.max_size = max_size
         self.validators = (validators if validators else []) + (self.validators if self.validators else [])
 
@@ -56,20 +56,20 @@ class Registerer(typing.Generic[T]):
         """
         get actual registered items as list (classes or functions)
         """
-        return list(self.registry_dict.values())
+        return list(self._registry_dict.values())
 
     def is_registered(self, slug: str) -> bool:
         """
         is the slug registered?
         """
-        return slug in self.registry_dict
+        return slug in self._registry_dict
 
     def __getitem__(self, registry_slug: str) -> T:
         """
         get the registered item by slug
         """
         try:
-            return self.registry_dict[registry_slug]
+            return self._registry_dict[registry_slug]
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
@@ -82,13 +82,13 @@ class Registerer(typing.Generic[T]):
         Raises:
             RegistrationError: can't register this item.
         """
-        if self.parent_item is not None and inspect.isclass(item) and not issubclass(item, self.parent_item):
-            raise RegistrationError(f"'{item.__name__}' class should be a subclass of '{self.parent_item.__name__}'.")
+        if self.parent_class is not None and inspect.isclass(item) and not issubclass(item, self.parent_class):
+            raise RegistrationError(f"'{item.__name__}' class should be a subclass of '{self.parent_class.__name__}'.")
 
         if inspect.isclass(item) and issubclass(item, Registerer):
             raise RegistrationError(f"Don't register a class inherited from Registerer. It's anti-pattern.")
 
-        if self.max_size is not None and len(self.registry_dict) >= self.max_size:
+        if self.max_size is not None and len(self._registry_dict) >= self.max_size:
             raise RegistrationError(f"You can't register more than {self.max_size} items to this registry.")
 
         for validator in self.validators:
@@ -117,7 +117,7 @@ class Registerer(typing.Generic[T]):
 
             self.validate(item)
 
-            self.registry_dict[registry_slug] = item
+            self._registry_dict[registry_slug] = item
             return item
 
         return _wrapper_function
@@ -169,6 +169,6 @@ class Registerer(typing.Generic[T]):
         return self.__register(*args, **kwargs)
 
     def __repr__(self) -> str:
-        parent = f"{self.parent_item.__name__}" if self.parent_item else ""
-        count = f"count={len(self.registry_dict)}"
+        parent = f"{self.parent_class.__name__}" if self.parent_class else ""
+        count = f"count={len(self._registry_dict)}"
         return f"<{parent}Registry {count}>"

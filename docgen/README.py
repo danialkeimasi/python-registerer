@@ -91,7 +91,7 @@ class Animal(abc.ABC):
 
 # Animal class registry
 animal_registry = registerer.Registerer(
-    parent_item=Animal,
+    parent_class=Animal,
     max_size=5,  # only 5 items can register
     validators=[
         registerer.RegistryValidator(
@@ -129,7 +129,7 @@ assert animal_registry["Sheep"] == Sheep
 assert animal_registry["kitty"] == Cat
 
 assert animal_registry.items == [Sheep, Cat]
-assert animal_registry.registry_dict == {"sheep": Sheep, "kitty": Cat}
+assert animal_registry._registry_dict == {"sheep": Sheep, "kitty": Cat}
 
 assert animal_registry["Sheep"]().walk() == "sheep walks"
 assert animal_registry["kitty"]().walk() == "cat walks"

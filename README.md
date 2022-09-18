@@ -91,7 +91,7 @@ class Animal(abc.ABC):
 
 # Animal class registry
 animal_registry = registerer.Registerer(
-    parent_item=Animal,
+    parent_class=Animal,
     max_size=5,  # only 5 items can register
     validators=[
         registerer.RegistryValidator(
@@ -129,7 +129,7 @@ assert animal_registry["Sheep"] == Sheep
 assert animal_registry["kitty"] == Cat
 
 assert animal_registry.items == [Sheep, Cat]
-assert animal_registry.registry_dict == {"sheep": Sheep, "kitty": Cat}
+assert animal_registry._registry_dict == {"sheep": Sheep, "kitty": Cat}
 
 assert animal_registry["Sheep"]().walk() == "sheep walks"
 assert animal_registry["kitty"]().walk() == "cat walks"
@@ -235,7 +235,7 @@ A utility that can be used to create a registry object to register class or func
 
 ```python
 __init__(
-    parent_item: Optional[~T] = None,
+    parent_class: Optional[~T] = None,
     max_size: Optional[int] = None,
     validators: Optional[List[registerer.validators.RegistryValidator]] = None
 )
@@ -245,7 +245,7 @@ __init__(
 
 **Args:**
  
- - <b>`parent_item`</b>:  The class of parent.  If you set this, the registered class should be subclass of the this,  If it's not the register method going to raise RegistrationError.  Also by setting this you'll be benefit from type hints in your IDE. 
+ - <b>`parent_class`</b>:  The class of parent.  If you set this, the registered class should be subclass of the this,  If it's not the register method going to raise RegistrationError.  Also by setting this you'll be benefit from type hints in your IDE. 
  - <b>`max_size`</b>:  allowed size of registered items.  Defaults to None which means there is no limit. 
  - <b>`validators`</b>:  custom validation for on registering items. 
 
