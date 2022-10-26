@@ -37,25 +37,25 @@ Instead of this, which violates the Open-Closed Principle (OCP):
 ```python
 
 
-def hello(args):
+def hello2(args):
     return "hello to you too"
 
 
-def info(args):
+def info2(args):
     return "how can i help you?"
 
 
-def play(args):
+def play2(args):
     return "let me play a song for you"
 
 
 def command_handler(command, args):
     if command == "hello":
-        return hello(args)
+        return hello2(args)
     if command == "info":
-        return info(args)
+        return info2(args)
     if command == "play":
-        return play(args)
+        return play2(args)
 
 
 command = "info"
@@ -79,10 +79,11 @@ let's create a registry:
 ```python
 
 import abc
+import typing
 
 
 class Animal(abc.ABC):
-    is_wild: bool = None
+    is_wild: typing.Optional[bool] = None
 
     @abc.abstractmethod
     def walk(self):
@@ -117,7 +118,7 @@ class Sheep(Animal):
 
 
 # use your custom slug as unique identifier:
-@animal_registry.register("kitty")
+@animal_registry.register("mamad")
 class Cat(Animal):
     is_wild = False
 
@@ -229,7 +230,7 @@ Here is all the things you can do with the `Registerer` class:
 ### <kbd>class</kbd> `Registerer`
 A utility that can be used to create a registry object to register class or functions. 
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L22"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L17"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `Registerer.__init__`
 
@@ -266,7 +267,7 @@ get actual registered items as list (classes or functions)
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L61"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L56"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.is_registered`
 
@@ -278,12 +279,12 @@ is the slug registered?
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L125"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L120"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.register`
 
 ```python
-register(item_or_custom_slug: Union[~T, str] = None, **kwargs)
+register(item_or_custom_slug: Optional[~T, str] = None, **kwargs)
 ```
 
 register a class or item to the registry 
@@ -321,7 +322,7 @@ assert postgresql_connection.env == "prod"
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L76"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L71"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.validate`
 

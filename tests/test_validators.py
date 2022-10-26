@@ -22,7 +22,7 @@ class Test(unittest.TestCase):
         with self.assertRaises(RegistrationError):
 
             @registry.register("no")
-            class Foo:
+            class Foo2:
                 pass
 
 

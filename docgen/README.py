@@ -37,25 +37,25 @@ Instead of this, which violates the Open-Closed Principle (OCP):
 """
 
 
-def hello(args):
+def hello2(args):
     return "hello to you too"
 
 
-def info(args):
+def info2(args):
     return "how can i help you?"
 
 
-def play(args):
+def play2(args):
     return "let me play a song for you"
 
 
 def command_handler(command, args):
     if command == "hello":
-        return hello(args)
+        return hello2(args)
     if command == "info":
-        return info(args)
+        return info2(args)
     if command == "play":
-        return play(args)
+        return play2(args)
 
 
 command = "info"
@@ -79,10 +79,11 @@ let's create a registry:
 """
 
 import abc
+import typing
 
 
 class Animal(abc.ABC):
-    is_wild: bool = None
+    is_wild: typing.Optional[bool] = None
 
     @abc.abstractmethod
     def walk(self):
@@ -117,7 +118,7 @@ class Sheep(Animal):
 
 
 # use your custom slug as unique identifier:
-@animal_registry.register("kitty")
+@animal_registry.register("mamad")
 class Cat(Animal):
     is_wild = False
 

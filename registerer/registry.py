@@ -8,16 +8,11 @@ from registerer.exceptions import (
 )
 from registerer.validators import RegistryValidator
 
-T = typing.TypeVar("T")
+T = typing.TypeVar("T", typing.Type, typing.Any)
 
 
 class Registerer(typing.Generic[T]):
     """A utility that can be used to create a registry object to register class or functions."""
-
-    _registry_dict: typing.Dict[str, T] = None
-    parent_class: typing.Optional[T] = None
-    max_size: typing.Optional[int] = None
-    validators: typing.Optional[typing.List] = None
 
     def __init__(
         self,
@@ -39,10 +34,10 @@ class Registerer(typing.Generic[T]):
         Raises:
             RegistryCreationError: Can't create proper registry object.
         """
-        self._registry_dict = {}
-        self.parent_class = parent_class if parent_class else self.parent_class
-        self.max_size = max_size
-        self.validators = (validators if validators else []) + (self.validators if self.validators else [])
+        self._registry_dict: typing.Dict[str, T] = {}
+        self.parent_class: typing.Optional[T] = parent_class
+        self.max_size: typing.Optional[int] = max_size
+        self.validators: typing.List = validators if validators else []
 
         if self.max_size is not None and (not isinstance(self.max_size, int) or self.max_size <= 0):
             raise RegistryCreationError("max_size should be a int bigger than zero or None.")
@@ -94,7 +89,7 @@ class Registerer(typing.Generic[T]):
         for validator in self.validators:
             validator(item)
 
-    def __register(self, custom_slug: str = None, **kwargs):
+    def __register(self, custom_slug: typing.Optional[str] = None, **kwargs):
         """the inner function that handles register
 
         Args:
@@ -122,7 +117,7 @@ class Registerer(typing.Generic[T]):
 
         return _wrapper_function
 
-    def register(self, item_or_custom_slug: typing.Union[T, str] = None, **kwargs):
+    def register(self, item_or_custom_slug: typing.Optional[typing.Union[T, str]] = None, **kwargs):
         """register a class or item to the registry
         example:
 
@@ -158,7 +153,7 @@ class Registerer(typing.Generic[T]):
         if item_or_custom_slug is not None and kwargs == {} and not isinstance(item_or_custom_slug, str):
             # register function is not called,
             # and item_or_custom_slug is a item (function or class).
-            return self.__register()(item_or_custom_slug)
+            return self.__register()(typing.cast(T, item_or_custom_slug))
 
         if item_or_custom_slug is None and kwargs == {}:
             # unnecessary call
@@ -168,7 +163,7 @@ class Registerer(typing.Generic[T]):
             )
 
         # item_or_custom_slug is a custom_slug
-        return self.__register(item_or_custom_slug, **kwargs)
+        return self.__register(typing.cast(str, item_or_custom_slug), **kwargs)
 
     def __repr__(self) -> str:
         parent = f"{self.parent_class.__name__}" if self.parent_class else ""

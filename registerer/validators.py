@@ -10,7 +10,7 @@ class RegistryValidator:
 
     """
 
-    def __init__(self, validator, *, error: str = None) -> None:
+    def __init__(self, validator, *, error: typing.Optional[str] = None) -> None:
         self.validator = validator
         self.error = error
 
