@@ -122,7 +122,7 @@ class Registerer(typing.Generic[T]):
 
         return _wrapper_function
 
-    def register(self, item_or_custom_slug: T | str = None, **kwargs):
+    def register(self, item_or_custom_slug: typing.Union[T, str] = None, **kwargs):
         """register a class or item to the registry
         example:
 
