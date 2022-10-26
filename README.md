@@ -14,17 +14,17 @@ import registerer
 command_handler_registry = registerer.Registerer()
 
 
-@command_handler_registry.register
+@command_handler_registry.register()
 def hello(args):
     return "hello to you too"
 
 
-@command_handler_registry.register
+@command_handler_registry.register()
 def info(args):
     return "how can i help you?"
 
 
-@command_handler_registry.register
+@command_handler_registry.register()
 def play(args):
     return "let me play a song for you"
 
@@ -85,7 +85,6 @@ import typing
 class Animal(abc.ABC):
     is_wild: typing.Optional[bool] = None
 
-    @abc.abstractmethod
     def walk(self):
         pass
 
@@ -109,7 +108,7 @@ Now with `animal_registry` you can register your classes:
 
 
 # use the name of class as unique identifier:
-@animal_registry.register
+@animal_registry.register()
 class Sheep(Animal):
     is_wild = False
 
@@ -118,7 +117,7 @@ class Sheep(Animal):
 
 
 # use your custom slug as unique identifier:
-@animal_registry.register("mamad")
+@animal_registry.register("kitty")
 class Cat(Animal):
     is_wild = False
 
@@ -236,7 +235,8 @@ A utility that can be used to create a registry object to register class or func
 
 ```python
 __init__(
-    parent_class: Optional[~T] = None,
+    parent_class: Optional[Type[~T]] = None,
+    slug_attr='registry_slug',
     max_size: Optional[int] = None,
     validators: Optional[List[registerer.validators.RegistryValidator]] = None
 )
@@ -267,7 +267,7 @@ get actual registered items as list (classes or functions)
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L56"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L58"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.is_registered`
 
@@ -279,12 +279,12 @@ is the slug registered?
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L120"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L94"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.register`
 
 ```python
-register(item_or_custom_slug: Optional[~T, str] = None, **kwargs)
+register(custom_slug: Optional[str] = None, **kwargs)
 ```
 
 register a class or item to the registry 
@@ -294,7 +294,7 @@ register a class or item to the registry
 
 ```python
 # register the item with it's name
-@registry.register
+@registry.register()
 class Foo:
      pass
 
@@ -320,14 +320,27 @@ assert postgresql_connection.env == "prod"
 
 ``` 
 
+
+
+**Args:**
+ 
+ - <b>`custom_slug`</b> (str):  the unique identifier for the item. 
+
+
+
+**Raises:**
+ 
+ - <b>`ItemAlreadyRegistered`</b>:  There is another item already registered with this slug. 
+ - <b>`RegistrationError`</b>:  can't register this item. 
+
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L71"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L73"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.validate`
 
 ```python
-validate(item: ~T)
+validate(item: Type[~T])
 ```
 
 validate the item during registration. 

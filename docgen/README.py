@@ -14,17 +14,17 @@ import registerer
 command_handler_registry = registerer.Registerer()
 
 
-@command_handler_registry.register
+@command_handler_registry.register()
 def hello(args):
     return "hello to you too"
 
 
-@command_handler_registry.register
+@command_handler_registry.register()
 def info(args):
     return "how can i help you?"
 
 
-@command_handler_registry.register
+@command_handler_registry.register()
 def play(args):
     return "let me play a song for you"
 
@@ -85,7 +85,6 @@ import typing
 class Animal(abc.ABC):
     is_wild: typing.Optional[bool] = None
 
-    @abc.abstractmethod
     def walk(self):
         pass
 
@@ -109,7 +108,7 @@ Now with `animal_registry` you can register your classes:
 
 
 # use the name of class as unique identifier:
-@animal_registry.register
+@animal_registry.register()
 class Sheep(Animal):
     is_wild = False
 
@@ -118,7 +117,7 @@ class Sheep(Animal):
 
 
 # use your custom slug as unique identifier:
-@animal_registry.register("mamad")
+@animal_registry.register("kitty")
 class Cat(Animal):
     is_wild = False
 

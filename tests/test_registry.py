@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
     def test_register_duplicate(self):
         registry = Registerer()
 
-        @registry.register
+        @registry.register()
         def foo():
             pass
 
@@ -31,7 +31,7 @@ class Test(unittest.TestCase):
     def test_function_register(self):
         registry = Registerer()
 
-        @registry.register
+        @registry.register()
         def foo():
             return "bar"
 
@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
     def test_max_size(self):
         registry = Registerer(max_size=1)
 
-        @registry.register
+        @registry.register()
         def foo():
             pass
 
@@ -79,7 +79,7 @@ class Test(unittest.TestCase):
 
         with self.assertRaises(RegistrationError):
 
-            @registry.register
+            @registry.register()
             def foo2():
                 pass
 
@@ -91,7 +91,7 @@ class Test(unittest.TestCase):
 
         with self.assertRaises(RegistrationError):
 
-            @registry.register
+            @registry.register()
             class Child(Parent):
                 pass
 

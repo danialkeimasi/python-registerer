@@ -7,15 +7,16 @@ class Test(unittest.TestCase):
     def test_validator(self):
 
         registry = Registerer(
+            slug_attr="slug",
             validators=[
                 RegistryValidator(
-                    lambda item: item.registry_slug != "no",
+                    lambda item: item.slug != "no",
                     error="oh no, registered class is not ok!",
                 ),
             ],
         )
 
-        @registry.register
+        @registry.register()
         class Foo:
             pass
 
