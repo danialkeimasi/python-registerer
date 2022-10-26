@@ -283,7 +283,7 @@ is the slug registered?
 #### <kbd>method</kbd> `Registerer.register`
 
 ```python
-register(*args, **kwargs)
+register(item_or_custom_slug: Union[~T, str] = None, **kwargs)
 ```
 
 register a class or item to the registry 

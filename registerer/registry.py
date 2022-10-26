@@ -122,7 +122,7 @@ class Registerer(typing.Generic[T]):
 
         return _wrapper_function
 
-    def register(self, *args, **kwargs):
+    def register(self, item_or_custom_slug: T | str = None, **kwargs):
         """register a class or item to the registry
         example:
 
@@ -155,18 +155,20 @@ class Registerer(typing.Generic[T]):
         ```
 
         """
-        if len(args) == 1 and kwargs == {} and (inspect.isfunction(args[0]) or inspect.isclass(args[0])):
-            # register function is not called
-            return self.__register()(args[0])
+        if item_or_custom_slug is not None and kwargs == {} and not isinstance(item_or_custom_slug, str):
+            # register function is not called,
+            # and item_or_custom_slug is a item (function or class).
+            return self.__register()(item_or_custom_slug)
 
-        if len(args) == 0 and kwargs == {}:
+        if item_or_custom_slug is None and kwargs == {}:
             # unnecessary call
             raise RegistrationError(
                 "Pass the registry_slug as positional argument"
                 "or just don't call the register function to use the name of item."
             )
 
-        return self.__register(*args, **kwargs)
+        # item_or_custom_slug is a custom_slug
+        return self.__register(item_or_custom_slug, **kwargs)
 
     def __repr__(self) -> str:
         parent = f"{self.parent_class.__name__}" if self.parent_class else ""
