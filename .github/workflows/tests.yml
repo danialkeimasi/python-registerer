@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
-        poetry-version: ["1.1.15", "1.2.0"]
+        python-version: ["3.11", "3.10", "3.9", "3.8", "3.7"]
+        poetry-version: ["1.2.0", "1.1.15"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -26,11 +26,13 @@ jobs:
         run: poetry install
       - name: Run tests
         run: coverage run -m unittest
-      - name: Report coverage
+      - if: ${{ strategy.job-index == 0 }}
+        name: Report coverage
         run: |
           coverage report
           coverage xml
-      - name: Upload coverage to Codecov
+      - if: ${{ strategy.job-index == 0 }}
+        name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml

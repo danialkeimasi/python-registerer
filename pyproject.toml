@@ -25,11 +25,6 @@ coverage = {extras = ["toml"], version = "^6.4.4"}
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.coverage.run]
-omit = [
-    "tests*"
-]
-
 [tool.coverage.report]
 exclude_lines = [
     # Have to re-enable the standard pragma
@@ -43,10 +38,12 @@ exclude_lines = [
 
     # Don't complain if non-runnable code isn't run:
     "if __name__ == .__main__.:",
+    "pass",
 
     # Don't complain about abstract methods, they aren't run:
     "@(abc.)?abstractmethod",
 ]
+
 ignore_errors = true
 
 [tool.coverage.html]
