@@ -18,7 +18,7 @@ class Registerer(typing.Generic[T]):
         self,
         parent_class: typing.Optional[typing.Type[T]] = None,
         *,
-        slug_attr="registry_slug",
+        slug_attr: typing.Optional[str] = None,
         max_size: typing.Optional[int] = None,
         validators: typing.Optional[typing.List[RegistryValidator]] = None,
     ):
@@ -28,6 +28,8 @@ class Registerer(typing.Generic[T]):
                 If you set this, the registered class should be subclass of the this,
                 If it's not the register method going to raise RegistrationError.
                 Also by setting this you'll be benefit from type hints in your IDE.
+            slug_attr: Pass the attribute name of registered item that you want to
+                set registry slug to or read from registered item.
             max_size: allowed size of registered items.
                 Defaults to None which means there is no limit.
             validators: custom validation for on registering items.
@@ -38,7 +40,7 @@ class Registerer(typing.Generic[T]):
         self._registry_dict: typing.Dict[str, typing.Type[T]] = {}
         self.parent_class: typing.Optional[typing.Type[T]] = parent_class
         self.max_size: typing.Optional[int] = max_size
-        self.slug_attr: str = slug_attr
+        self.slug_attr: typing.Optional[str] = slug_attr
         self.validators: typing.List = validators if validators else []
 
         if self.max_size is not None and (not isinstance(self.max_size, int) or self.max_size <= 0):
@@ -132,12 +134,14 @@ class Registerer(typing.Generic[T]):
         """
 
         def _wrapper_function(item):
-            registry_slug = custom_slug if custom_slug else item.__name__
+            registry_slug = custom_slug or getattr(item, self.slug_attr or "", "") or item.__name__
 
             if self.is_registered(registry_slug):
                 raise RegistrationError(f"There is another item already registered with slug='{registry_slug}'.")
 
-            setattr(item, self.slug_attr, registry_slug)
+            if self.slug_attr:
+                setattr(item, self.slug_attr, registry_slug)
+
             for key, value in kwargs.items():
                 setattr(item, key, value)
 

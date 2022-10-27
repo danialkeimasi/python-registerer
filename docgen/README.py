@@ -83,7 +83,8 @@ import typing
 
 
 class Animal(abc.ABC):
-    is_wild: typing.Optional[bool] = None
+    slug: str
+    is_wild: bool
 
     def walk(self):
         pass
@@ -93,6 +94,7 @@ class Animal(abc.ABC):
 animal_registry = registerer.Registerer(
     parent_class=Animal,
     max_size=5,  # only 5 items can register
+    slug_attr="slug",  # set the slug of item as attribute on it
     validators=[
         registerer.RegistryValidator(
             lambda item: item.is_wild is False,  # check passed if returns True
@@ -134,12 +136,13 @@ assert animal_registry._registry_dict == {"Sheep": Sheep, "kitty": Cat}
 assert animal_registry["Sheep"]().walk() == "sheep walks"
 assert animal_registry["kitty"]().walk() == "cat walks"
 """
-The `register` method will also set an attribute on the registered item as `registry_slug`.  
+The `register` method will also set an attribute on the registered item as `registry_slug`.
+You can change the attribute name when creating the Registerer object.
 So, in last example we have:
 
 """
-assert Cat.registry_slug == "kitty"
-assert animal_registry["kitty"].registry_slug == "kitty"
+assert Cat.slug == "kitty"
+assert animal_registry["kitty"].slug == "kitty"
 
 """
 if you need to add attributes on the registered item on registration (it's optional), you can pass kwargs to the `register` method.  

@@ -83,7 +83,8 @@ import typing
 
 
 class Animal(abc.ABC):
-    is_wild: typing.Optional[bool] = None
+    slug: str
+    is_wild: bool
 
     def walk(self):
         pass
@@ -93,6 +94,7 @@ class Animal(abc.ABC):
 animal_registry = registerer.Registerer(
     parent_class=Animal,
     max_size=5,  # only 5 items can register
+    slug_attr="slug",  # set the slug of item as attribute on it
     validators=[
         registerer.RegistryValidator(
             lambda item: item.is_wild is False,  # check passed if returns True
@@ -134,12 +136,13 @@ assert animal_registry._registry_dict == {"Sheep": Sheep, "kitty": Cat}
 assert animal_registry["Sheep"]().walk() == "sheep walks"
 assert animal_registry["kitty"]().walk() == "cat walks"
 ```
-The `register` method will also set an attribute on the registered item as `registry_slug`.  
+The `register` method will also set an attribute on the registered item as `registry_slug`.
+You can change the attribute name when creating the Registerer object.
 So, in last example we have:
 
 ```python
-assert Cat.registry_slug == "kitty"
-assert animal_registry["kitty"].registry_slug == "kitty"
+assert Cat.slug == "kitty"
+assert animal_registry["kitty"].slug == "kitty"
 
 ```
 if you need to add attributes on the registered item on registration (it's optional), you can pass kwargs to the `register` method.  
@@ -236,7 +239,7 @@ A utility that can be used to create a registry object to register class or func
 ```python
 __init__(
     parent_class: Optional[Type[~T]] = None,
-    slug_attr='registry_slug',
+    slug_attr: Optional[str] = None,
     max_size: Optional[int] = None,
     validators: Optional[List[registerer.validators.RegistryValidator]] = None
 )
@@ -247,6 +250,7 @@ __init__(
 **Args:**
  
  - <b>`parent_class`</b>:  The class of parent.  If you set this, the registered class should be subclass of the this,  If it's not the register method going to raise RegistrationError.  Also by setting this you'll be benefit from type hints in your IDE. 
+ - <b>`slug_attr`</b>:  Pass the attribute name of registered item that you want to  set registry slug to or read from registered item. 
  - <b>`max_size`</b>:  allowed size of registered items.  Defaults to None which means there is no limit. 
  - <b>`validators`</b>:  custom validation for on registering items. 
 
@@ -267,7 +271,7 @@ get actual registered items as list (classes or functions)
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L58"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L60"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.is_registered`
 
@@ -279,7 +283,7 @@ is the slug registered?
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L94"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L96"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.register`
 
@@ -335,7 +339,7 @@ assert postgresql_connection.env == "prod"
 
 ---
 
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L73"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L75"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 #### <kbd>method</kbd> `Registerer.validate`
 
