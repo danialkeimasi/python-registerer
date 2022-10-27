@@ -98,13 +98,13 @@ class Test(unittest.TestCase):
     def test_constructor(self):
 
         with self.assertRaises(RegistryCreationError):
-            Registerer(validators=[lambda item: True])
+            Registerer(validators=[lambda item: True])  # type: ignore
 
         with self.assertRaises(RegistryCreationError):
             Registerer(max_size=0)
 
         with self.assertRaises(RegistryCreationError):
-            Registerer(max_size=0.2)
+            Registerer(max_size=0.2)  # type: ignore
 
     def test_function_attribute_setter(self):
         registry = Registerer()
