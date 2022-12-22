@@ -1,6 +1,6 @@
 import inspect
 import typing
-
+import copy
 from registerer.exceptions import (
     ItemNotRegistered,
     RegistrationError,
@@ -53,13 +53,13 @@ class Registerer(typing.Generic[T]):
     @property
     def items(self) -> typing.List[typing.Type[T]]:
         """
-        get actual registered items as list (classes or functions)
+        Get actual registered items as list (classes or functions)
         """
         return list(self._registry_dict.values())
 
     def is_registered(self, slug: str) -> bool:
         """
-        is the slug registered?
+        Is the slug registered with any item?
         """
         return slug in self._registry_dict
 
@@ -72,8 +72,16 @@ class Registerer(typing.Generic[T]):
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
+    def get(
+        self, registry_slug: str, default: typing.Optional[typing.Type[T]] = None
+    ) -> typing.Optional[typing.Type[T]]:
+        """
+        Return the value for key if key is in the registry, else default.
+        """
+        return self._registry_dict.get(registry_slug, default)
+
     def validate(self, item: typing.Type[T]):
-        """validate the item during registration.
+        """Validate the item during registration.
 
         Args:
             item (T): item want to register.
@@ -94,7 +102,7 @@ class Registerer(typing.Generic[T]):
             validator(item)
 
     def register(self, custom_slug: typing.Optional[str] = None, **kwargs):
-        """register a class or item to the registry
+        """Register a class or item to the registry
         example:
 
         ```python
@@ -151,6 +159,34 @@ class Registerer(typing.Generic[T]):
             return item
 
         return _wrapper_function
+
+    def unregister(self, registry_slug: str) -> None:
+        """
+        Unregister the item with given slug.
+        """
+        self._registry_dict.pop(registry_slug)
+
+    def filter(self, function: typing.Callable[[typing.Type[T]], bool]) -> "Registerer":
+        """
+        Filter the registry with given callback and create
+        another subset registry with desired items in it.
+        """
+        registry = copy.deepcopy(self)
+        registry._registry_dict = {slug: item for slug, item in registry._registry_dict.items() if function(item)}
+        return registry
+
+    def represent(self, *args: str) -> typing.List[typing.List]:
+        """
+        Use this to create a representation of registered items.
+        You can use this to create choices for Django model field.
+
+        The input name of attrs you have on registered items.
+        The output is a list of lists that represents the values of attrs.
+
+        >>> assert registry.represent("slug", "name")
+        [["contest", "Contest"], ["college", "College"]]
+        """
+        return [[getattr(item, field) for field in args] for item in self.items]
 
     def __repr__(self) -> str:
         parent = f"{self.parent_class.__name__}" if self.parent_class else ""
