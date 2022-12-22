@@ -180,8 +180,24 @@ class Registerer(typing.Generic[T]):
         The input name of attrs you have on registered items.
         The output is a list of lists that represents the values of attrs.
 
-        >>> assert registry.represent("slug", "name")
-        [["contest", "Contest"], ["college", "College"]]
+        ```python
+        registry = registerer.Registerer()
+
+        @registry.register()
+        class ContestStep:
+            slug = "contest"
+            name = "Contest"
+
+        @registry.register()
+        class CollegeStep:
+            slug = "college"
+            name = "College"
+
+        assert registry.represent("slug", "name") == [["contest", "Contest"], ["college", "College"]]
+
+        class Step(django.db.models.Model):
+            step_slug = models.CharField(max_length=100, choices=registry.represent("slug", "name"))
+        ```
         """
         return [[getattr(item, field) for field in args] for item in self.items]
 
