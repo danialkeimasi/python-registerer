@@ -31,7 +31,6 @@ markdown-exec = "^1.0.0"
 Pillow = "^9.3.0"
 CairoSVG = "^2.5.2"
 
-
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -54,11 +53,7 @@ exclude_lines = [
     # Don't complain about abstract methods, they aren't run:
     "@(abc.)?abstractmethod",
 ]
-
 ignore_errors = true
-
-[tool.coverage.html]
-directory = "coverage_html_report"
 
 [tool.pytest.ini_options]
 norecursedirs = ".git"
@@ -67,7 +62,6 @@ pythonpath = ["."]
 [tool.black]
 line-length = 120
 include = '\.pyi?$'
-exclude = '/(\..+|node_modules)/'
 
 [tool.isort]
 profile = "black"
@@ -84,6 +78,3 @@ remove-all-unused-imports = true
 [tool.mypy]
 warn_return_any = true
 warn_unused_configs = true
-exclude = [
-    '^docgen/.*\.py$',
-]
