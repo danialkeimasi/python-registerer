@@ -1,0 +1,30 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    name: Generate Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9.x
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: 1.2.2
+      - uses: actions/cache@v2
+        with:
+          key: ${{ github.ref }}
+          path: .cache
+      - name: Disable poetry venv
+        run: poetry config virtualenvs.create false
+      - name: Install deps
+        run: poetry install
+      - run: mkdocs gh-deploy --force

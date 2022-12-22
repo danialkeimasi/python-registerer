@@ -1,6 +1,6 @@
 # Project information
 site_name: Python Registerer
-site_url: https://python-registerer.readthedocs.io
+site_url: https://danialkeimasi.github.io/python-registerer
 site_author: Danial Keimasi
 site_description: >-
   Implement maintainable and easy to use registry patterns in your project.
@@ -75,7 +75,7 @@ plugins:
       handlers:
         python:
           options:
-            show_source: false
+            show_source: true
 
   - markdown-exec
   - social:
