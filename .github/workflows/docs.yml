@@ -26,5 +26,5 @@ jobs:
       - name: Disable poetry venv
         run: poetry config virtualenvs.create false
       - name: Install deps
-        run: poetry install
+        run: poetry install --only=docs
       - run: mkdocs gh-deploy --force
