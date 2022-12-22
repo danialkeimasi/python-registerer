@@ -9,7 +9,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.10", "3.9", "3.8", "3.7"]
-        poetry-version: ["1.2.0", "1.1.15"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -19,18 +18,13 @@ jobs:
       - name: Run image
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: ${{ matrix.poetry-version }}
+          poetry-version: 1.2.0
       - name: Disable poetry venv
         run: poetry config virtualenvs.create false
       - name: Install deps
         run: poetry install
       - name: Run tests
-        run: coverage run -m unittest
-      - if: ${{ strategy.job-index == 0 }}
-        name: Report coverage
-        run: |
-          coverage report
-          coverage xml
+        run: pytest --cov --cov-report=xml
       - if: ${{ strategy.job-index == 0 }}
         name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

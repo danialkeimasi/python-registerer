@@ -79,7 +79,6 @@ let's create a registry:
 """
 
 import abc
-import typing
 
 
 class Animal(abc.ABC):
@@ -145,7 +144,9 @@ assert Cat.slug == "kitty"
 assert animal_registry["kitty"].slug == "kitty"
 
 """
-if you need to add attributes on the registered item on registration (it's optional), you can pass kwargs to the `register` method.  
+if you need to add attributes on the registered item on registration (it's optional),
+you can pass kwargs to the `register` method.
+
 This is useful when registering functions. for example:
 """
 

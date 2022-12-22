@@ -1,11 +1,6 @@
 import unittest
 
-from registerer import (
-    ItemNotRegistered,
-    Registerer,
-    RegistrationError,
-    RegistryCreationError,
-)
+from registerer import ItemNotRegistered, Registerer, RegistrationError, RegistryCreationError
 
 
 class Test(unittest.TestCase):

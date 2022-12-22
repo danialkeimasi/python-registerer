@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import lazydocs
+
 import registerer
 
 docs_dir = Path(__file__).parent
