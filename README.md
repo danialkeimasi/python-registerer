@@ -1,22 +1,20 @@
 # Registerer
+
 [![pypi](https://img.shields.io/pypi/v/registerer.svg)](https://pypi.python.org/pypi/registerer/)
 [![ci](https://github.com/danialkeimasi/python-registerer/workflows/tests/badge.svg)](https://github.com/danialkeimasi/python-registerer/actions)
 [![codecov](https://codecov.io/gh/danialkeimasi/python-registerer/branch/main/graph/badge.svg?token=Q5MG14RKJL)](https://codecov.io/gh/danialkeimasi/python-registerer)
 [![license](https://img.shields.io/github/license/danialkeimasi/python-registerer.svg)](https://github.com/danialkeimasi/python-registerer/blob/master/LICENSE)
 
-
 Implement maintainable and easy to use registry patterns in your project.
 
-TLDR; Write this:
-```python
+## TLDR
+
+Write this:
+
+```python exec="true" source="above"
 import registerer
 
 command_handler_registry = registerer.Registerer()
-
-
-@command_handler_registry.register()
-def hello(args):
-    return "hello to you too"
 
 
 @command_handler_registry.register()
@@ -33,400 +31,45 @@ command = "info"
 args = {}
 assert command_handler_registry[command](args) == "how can i help you?"
 ```
+
 Instead of this, which violates the Open-Closed Principle (OCP):
-```python
 
-
-def hello2(args):
-    return "hello to you too"
-
-
-def info2(args):
+```python exec="true" source="above"
+def info(args):
     return "how can i help you?"
 
 
-def play2(args):
+def play(args):
     return "let me play a song for you"
 
 
 def command_handler(command, args):
-    if command == "hello":
-        return hello2(args)
     if command == "info":
-        return info2(args)
+        return info(args)
     if command == "play":
-        return play2(args)
+        return play(args)
 
 
-command = "info"
+command = "play"
 args = {}
-assert command_handler(command, args) == "how can i help you?"
+assert command_handler(command, args) == "let me play a song for you"
 ```
+
+## Links
+
+- For more information [Read the docs](https://danialkeimasi.github.io/python-registerer/).
+
 ## Installation
+
+You can install the latest version of registerer from PyPI:
 
 ```sh
 pip install registerer
 ```
 
-## Usage
-
-In order to use registerer, you need to instantiate from the `registerer.Registerer`.
-
-There is several optional arguments you can pass to the `Registerer` constructor
-to manage how registry object should behave (Read more in reference section).
-
-let's create a registry:
-```python
-
-import abc
-
-
-class Animal(abc.ABC):
-    slug: str
-    is_wild: bool
-
-    def walk(self):
-        pass
-
-
-# Animal class registry
-animal_registry = registerer.Registerer(
-    parent_class=Animal,
-    max_size=5,  # only 5 items can register
-    slug_attr="slug",  # set the slug of item as attribute on it
-    validators=[
-        registerer.RegistryValidator(
-            lambda item: item.is_wild is False,  # check passed if returns True
-            error="can't register wild animal.",
-        ),
-    ],
-)
-
-
-```
-Now with `animal_registry` you can register your classes:
-```python
-
-
-# use the name of class as unique identifier:
-@animal_registry.register()
-class Sheep(Animal):
-    is_wild = False
-
-    def walk(self):
-        return "sheep walks"
-
-
-# use your custom slug as unique identifier:
-@animal_registry.register("kitty")
-class Cat(Animal):
-    is_wild = False
-
-    def walk(self):
-        return "cat walks"
-
-
-assert animal_registry["Sheep"] == Sheep
-assert animal_registry["kitty"] == Cat
-
-assert animal_registry.items == [Sheep, Cat]
-assert animal_registry._registry_dict == {"Sheep": Sheep, "kitty": Cat}
-
-assert animal_registry["Sheep"]().walk() == "sheep walks"
-assert animal_registry["kitty"]().walk() == "cat walks"
-```
-The `register` method will also set an attribute on the registered item as `registry_slug`.
-You can change the attribute name when creating the Registerer object.
-So, in last example we have:
-
-```python
-assert Cat.slug == "kitty"
-assert animal_registry["kitty"].slug == "kitty"
-
-```
-if you need to add attributes on the registered item on registration (it's optional),
-you can pass kwargs to the `register` method.
-
-This is useful when registering functions. for example:
-```python
-
-# function registry
-test_database_registry = registerer.Registerer(
-    validators=[
-        registerer.RegistryValidator(
-            lambda item: item.db_type == "test",
-        ),
-    ]
-)
-
-# use the name of function as unique identifier:
-@test_database_registry.register(db_type="test")
-def sqlite(name: str):
-    return f"sqlite connection {name}"
-
-
-# use your custom slug as unique identifier:
-@test_database_registry.register("postgresql", db_type="test")
-def postgresql_test(name: str):
-    return f"postgresql connection {name}"
-
-
-assert test_database_registry["sqlite"]("quera") == f"sqlite connection quera"
-assert test_database_registry["postgresql"]("quera") == f"postgresql connection quera"
-
-```
-### Exceptions
-
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/exceptions.py#L0"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>module</kbd> `registerer.exceptions`
-
-
-
-
-
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/exceptions.py#L1"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-##### <kbd>class</kbd> `RegistryCreationError`
-Errors that occurs on creating a registry object.
-
-
-
-
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/exceptions.py#L5"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-##### <kbd>class</kbd> `RegistrationError`
-Errors that occurs on registering new item.
-
-
-
-
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/exceptions.py#L9"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-##### <kbd>class</kbd> `ItemNotRegistered`
-You've tried to get a item that is not registered.
-
-
-
-
-
-
-
-## Reference
-
-Here is all the things you can do with the `Registerer` class:
-
-
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L11"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-### <kbd>class</kbd> `Registerer`
-A utility that can be used to create a registry object to register class or functions.
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L14"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-### <kbd>method</kbd> `Registerer.__init__`
-
-```python
-__init__(
-    parent_class: Optional[Type[~T]] = None,
-    slug_attr: Optional[str] = None,
-    max_size: Optional[int] = None,
-    validators: Optional[List[registerer.validators.RegistryValidator]] = None
-)
-```
-
-
-
-**Args:**
-
- - <b>`parent_class`</b>:  The class of parent.  If you set this, the registered class should be subclass of the this,  If it's not the register method going to raise RegistrationError.  Also by setting this you'll be benefit from type hints in your IDE.
- - <b>`slug_attr`</b>:  Pass the attribute name of registered item that you want to  set registry slug to or read from registered item.
- - <b>`max_size`</b>:  allowed size of registered items.  Defaults to None which means there is no limit.
- - <b>`validators`</b>:  custom validation for on registering items.
-
-
-
-**Raises:**
-
- - <b>`RegistryCreationError`</b>:  Can't create proper registry object.
-
-
----
-
-##### <kbd>property</kbd> Registerer.items
-
-Get actual registered items as list (classes or functions)
-
-
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L166"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>method</kbd> `Registerer.filter`
-
-```python
-filter(function: Callable[[Type[~T]], bool]) → Registerer
-```
-
-Filter the registry with given callback and create another subset registry with desired items in it.
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L72"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>method</kbd> `Registerer.get`
-
-```python
-get(registry_slug: str, default: Optional[Type[~T]] = None) → Optional[Type[~T]]
-```
-
-Return the value for key if key is in the registry, else default.
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L57"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>method</kbd> `Registerer.is_registered`
-
-```python
-is_registered(slug: str) → bool
-```
-
-Is the slug registered with any item?
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L101"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>method</kbd> `Registerer.register`
-
-```python
-register(custom_slug: Optional[str] = None, **kwargs)
-```
-
-Register a class or item to the registry
-
-**example:**
-
-
-```python
-# register the item with it's name
-@registry.register()
-class Foo:
-     pass
-
-assert registry["Foo"] == Foo
-
-
-# register the item with a custom name
-@registry.register("bar")
-class Bar:
-     pass
-
-assert registry["bar"] == Bar
-
-
-# register the item with a custom name and also add some other attributes to it.
-# it is more useful when registering functions.
-@db_registry.register("postgresql", env="prod")
-def postgresql_connection:
-     pass
-
-assert registry["postgresql"] == postgresql_connection
-assert postgresql_connection.env == "prod"
-
-```
-
-
-
-**Args:**
-
- - <b>`custom_slug`</b> (str):  the unique identifier for the item.
-
-
-
-**Raises:**
-
- - <b>`ItemAlreadyRegistered`</b>:  There is another item already registered with this slug.
- - <b>`RegistrationError`</b>:  can't register this item.
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L175"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>method</kbd> `Registerer.represent`
-
-```python
-represent(*args: str) → List[List]
-```
-
-Use this to create a representation of registered items. You can use this to create choices for Django model field.
-
-The input name of attrs you have on registered items. The output is a list of lists that represents the values of attrs.
-
-```python
-registry = registerer.Registerer()
-
-@registry.register()
-class ContestStep:
-     slug = "contest"
-     name = "Contest"
-
-@registry.register()
-class CollegeStep:
-     slug = "college"
-     name = "College"
-
-assert registry.represent("slug", "name") == [["contest", "Contest"], ["college", "College"]]
-
-class Step(django.db.models.Model):
-     step_slug = models.CharField(max_length=100, choices=registry.represent("slug", "name"))
-```
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L160"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>method</kbd> `Registerer.unregister`
-
-```python
-unregister(registry_slug: str) → None
-```
-
-Unregister the item with given slug.
-
----
-
-<a href="https://github.com/danialkeimasi/python-registerer/tree/main/registerer/registry.py#L80"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
-
-#### <kbd>method</kbd> `Registerer.validate`
-
-```python
-validate(item: Type[~T])
-```
-
-Validate the item during registration.
-
-
-
-**Args:**
-
- - <b>`item`</b> (T):  item want to register.
-
-
-
-**Raises:**
-
- - <b>`RegistrationError`</b>:  can't register this item.
+## Features
+
+- It's completely type-safe, thus you will get suggestions from your IDE.
+- Writing custom validations for registered items is provided without any inheritance.
+- generate choices for Django from registered items.
+- And so on...

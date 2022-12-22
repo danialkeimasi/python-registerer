@@ -2,15 +2,16 @@
 
 [![pypi](https://img.shields.io/pypi/v/registerer.svg)](https://pypi.python.org/pypi/registerer/)
 [![ci](https://github.com/danialkeimasi/python-registerer/workflows/tests/badge.svg)](https://github.com/danialkeimasi/python-registerer/actions)
+[![codecov](https://codecov.io/gh/danialkeimasi/python-registerer/branch/main/graph/badge.svg?token=Q5MG14RKJL)](https://codecov.io/gh/danialkeimasi/python-registerer)
 [![license](https://img.shields.io/github/license/danialkeimasi/python-registerer.svg)](https://github.com/danialkeimasi/python-registerer/blob/master/LICENSE)
 
 Implement maintainable and easy to use registry patterns in your project.
 
-### TLDR
+## TLDR
 
 Write this:
 
-```python exec="true" source="material-block"
+```python exec="true" source="above"
 import registerer
 
 command_handler_registry = registerer.Registerer()
@@ -28,12 +29,12 @@ def play(args):
 
 command = "info"
 args = {}
-print("output:", command_handler_registry[command](args))
+assert command_handler_registry[command](args) == "how can i help you?"
 ```
 
 Instead of this, which violates the Open-Closed Principle (OCP):
 
-```python exec="true" source="material-block"
+```python exec="true" source="above"
 def info(args):
     return "how can i help you?"
 
@@ -51,5 +52,20 @@ def command_handler(command, args):
 
 command = "play"
 args = {}
-print("output:", command_handler(command, args))
+assert command_handler(command, args) == "let me play a song for you"
 ```
+
+## Installation
+
+You can install the latest version of registerer from PyPI:
+
+```sh
+pip install registerer
+```
+
+## Features
+
+- It's completely type-safe, thus you will get suggestions from your IDE.
+- Writing custom validations for registered items is provided without any inheritance.
+- generate choices for Django from registered items.
+- And so on...
