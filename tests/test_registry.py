@@ -1,122 +1,124 @@
-import unittest
+import pytest
 
 from registerer import ItemNotRegistered, Registerer, RegistrationError, RegistryCreationError
 
 
-class Test(unittest.TestCase):
-    def test_not_registered(self):
-        registry = Registerer()
+def test_not_registered():
+    registry = Registerer()
 
-        with self.assertRaises(ItemNotRegistered):
-            registry["foo"]
+    with pytest.raises(ItemNotRegistered):
+        registry["foo"]
 
-    def test_register_duplicate(self):
-        registry = Registerer()
+
+def test_register_duplicate():
+    registry = Registerer()
+
+    @registry.register()
+    def foo():
+        pass
+
+    with pytest.raises(RegistrationError):
+
+        @registry.register("foo")
+        def foo2():
+            pass
+
+
+def test_function_register():
+    registry = Registerer()
+
+    @registry.register()
+    def foo():
+        return "bar"
+
+    assert registry._registry_dict == {"foo": foo}
+    assert list(registry.items) == [foo]
+    assert registry.is_registered("foo")
+    assert registry["foo"]() == "bar"
+
+
+def test_class_register():
+    class Parent:
+        pass
+
+    registry = Registerer(Parent)
+
+    @registry.register("child")
+    class Child(Parent):
+        pass
+
+    with pytest.raises(RegistrationError):
+
+        @registry.register("unrelated")
+        class Unrelated:
+            pass
+
+    assert registry._registry_dict == {"child": Child}
+    assert registry.is_registered("child")
+    assert not registry.is_registered("unrelated")
+
+    instance = registry["child"]()
+    assert isinstance(instance, Child)
+    assert isinstance(instance, Parent)
+
+
+def test_max_size():
+    registry = Registerer(max_size=1)
+
+    @registry.register()
+    def foo():
+        pass
+
+    with pytest.raises(RegistrationError):
 
         @registry.register()
         def foo():
             pass
 
-        with self.assertRaises(RegistrationError):
-
-            @registry.register("foo")
-            def foo2():
-                pass
-
-    def test_function_register(self):
-        registry = Registerer()
+    with pytest.raises(RegistrationError):
 
         @registry.register()
-        def foo():
-            return "bar"
-
-        self.assertTrue(registry._registry_dict == {"foo": foo})
-        self.assertTrue(list(registry.items) == [foo])
-        self.assertTrue(registry.is_registered("foo"))
-        self.assertTrue(registry["foo"]() == "bar")
-
-    def test_class_register(self):
-        class Parent:
+        def foo2():
             pass
 
-        registry = Registerer(Parent)
 
-        @registry.register("child")
+def test_avoid_registering_registerer():
+    class Parent(Registerer):
+        pass
+
+    registry = Registerer(Parent)
+
+    with pytest.raises(RegistrationError):
+
+        @registry.register()
         class Child(Parent):
             pass
 
-        with self.assertRaises(RegistrationError):
 
-            @registry.register("unrelated")
-            class Unrelated:
-                pass
+def test_constructor():
 
-        self.assertTrue(registry._registry_dict == {"child": Child})
-        self.assertTrue(registry.is_registered("child"))
-        self.assertTrue(not registry.is_registered("unrelated"))
+    with pytest.raises(RegistryCreationError):
+        Registerer(validators=[lambda item: True])  # type: ignore
 
-        instance = registry["child"]()
-        self.assertTrue(isinstance(instance, Child))
-        self.assertTrue(isinstance(instance, Parent))
+    with pytest.raises(RegistryCreationError):
+        Registerer(max_size=0)
 
-    def test_max_size(self):
-        registry = Registerer(max_size=1)
-
-        @registry.register()
-        def foo():
-            pass
-
-        with self.assertRaises(RegistrationError):
-
-            @registry.register()
-            def foo():
-                pass
-
-        with self.assertRaises(RegistrationError):
-
-            @registry.register()
-            def foo2():
-                pass
-
-    def test_avoid_registering_registerer(self):
-        class Parent(Registerer):
-            pass
-
-        registry = Registerer(Parent)
-
-        with self.assertRaises(RegistrationError):
-
-            @registry.register()
-            class Child(Parent):
-                pass
-
-    def test_constructor(self):
-
-        with self.assertRaises(RegistryCreationError):
-            Registerer(validators=[lambda item: True])  # type: ignore
-
-        with self.assertRaises(RegistryCreationError):
-            Registerer(max_size=0)
-
-        with self.assertRaises(RegistryCreationError):
-            Registerer(max_size=0.2)  # type: ignore
-
-    def test_function_attribute_setter(self):
-        registry = Registerer()
-
-        @registry.register(branch="test")
-        def test():
-            pass
-
-        @registry.register("prod", branch="prod")
-        def postgres_prod():
-            pass
-
-        self.assertTrue(test.branch == "test")
-        self.assertTrue(registry["test"].branch == "test")
-        self.assertTrue(postgres_prod.branch == "prod")
-        self.assertTrue(registry["prod"].branch == "prod")
+    with pytest.raises(RegistryCreationError):
+        Registerer(max_size=0.2)  # type: ignore
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_function_attribute_setter():
+    registry = Registerer()
+
+    @registry.register(branch="test")
+    def test():
+        pass
+
+    @registry.register("prod", branch="prod")
+    def postgres_prod():
+        pass
+
+    assert test.branch == "test"
+    assert registry["test"].branch == "test"
+    assert postgres_prod.branch == "prod"
+    assert registry["prod"].branch == "prod"

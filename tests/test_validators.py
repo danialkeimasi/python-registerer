@@ -1,31 +1,26 @@
-import unittest
+import pytest
 
 from registerer import Registerer, RegistrationError, RegistryValidator
 
 
-class Test(unittest.TestCase):
-    def test_validator(self):
+def test_validator():
 
-        registry = Registerer(
-            slug_attr="slug",
-            validators=[
-                RegistryValidator(
-                    lambda item: item.slug != "no",
-                    error="oh no, registered class is not ok!",
-                ),
-            ],
-        )
+    registry = Registerer(
+        slug_attr="slug",
+        validators=[
+            RegistryValidator(
+                lambda item: item.slug != "no",
+                error="oh no, registered class is not ok!",
+            ),
+        ],
+    )
 
-        @registry.register()
-        class Foo:
+    @registry.register()
+    class Foo:
+        pass
+
+    with pytest.raises(RegistrationError):
+
+        @registry.register("no")
+        class Foo2:
             pass
-
-        with self.assertRaises(RegistrationError):
-
-            @registry.register("no")
-            class Foo2:
-                pass
-
-
-if __name__ == "__main__":
-    unittest.main()
