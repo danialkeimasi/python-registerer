@@ -3,8 +3,7 @@ import pytest
 from registerer import Registerer, RegistrationError, RegistryValidator
 
 
-def test_validator():
-
+def test_validator(Parent, Child):
     registry = Registerer(
         slug_attr="slug",
         validators=[
@@ -15,12 +14,7 @@ def test_validator():
         ],
     )
 
-    @registry.register()
-    class Foo:
-        pass
+    registry.register("Foo")(Parent)
 
     with pytest.raises(RegistrationError):
-
-        @registry.register("no")
-        class Foo2:
-            pass
+        registry.register("no")(Child)

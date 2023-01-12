@@ -69,9 +69,7 @@ class Registerer(typing.Generic[T]):
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
-    def get(
-        self, registry_slug: str, default: typing.Optional[typing.Type[T]] = None
-    ) -> typing.Optional[typing.Type[T]]:
+    def get(self, registry_slug: str, default: typing.Optional[typing.Any] = None) -> typing.Optional[typing.Type[T]]:
         """
         Return the value for key if key is in the registry, else default.
         """
@@ -161,7 +159,10 @@ class Registerer(typing.Generic[T]):
         """
         Unregister the item with given slug.
         """
-        self._registry_dict.pop(registry_slug)
+        try:
+            self._registry_dict.pop(registry_slug)
+        except KeyError:
+            raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
     def filter(self, function: typing.Callable[[typing.Type[T]], bool]) -> "Registerer":
         """
