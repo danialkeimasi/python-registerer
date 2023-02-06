@@ -173,13 +173,12 @@ class Registerer(typing.Generic[T]):
         registry._registry_dict = {slug: item for slug, item in registry._registry_dict.items() if function(item)}
         return registry
 
-    def represent(self, *args: str) -> typing.List[typing.List]:
+    def attrs_as_tuples(self, *args: str, flat: bool = False) -> typing.List[typing.Tuple]:
         """
-        Use this to create a representation of registered items.
+        Returns list of tuples of based on attributes of registered items.
         You can use this to create choices for Django model field.
 
-        The input name of attrs you have on registered items.
-        The output is a list of lists that represents the values of attrs.
+        Inspired by values_list in Django's QuerySet.
 
         ```python
         registry = registerer.Registerer()
@@ -194,13 +193,23 @@ class Registerer(typing.Generic[T]):
             slug = "college"
             name = "College"
 
-        assert registry.represent("slug", "name") == [["contest", "Contest"], ["college", "College"]]
+        assert registry.attrs_as_tuples("slug", "name") == [("contest", "Contest"), ("college", "College")]
+        assert registry.attrs_as_tuples("slug", flat=True) == ["contest", "college"]
 
         class Step(django.db.models.Model):
-            step_slug = models.CharField(max_length=100, choices=registry.represent("slug", "name"))
+            step_slug = models.CharField(max_length=100, choices=registry.attrs_as_tuples("slug", "name"))
         ```
         """
-        return [[getattr(item, field) for field in args] for item in self.items]
+        if not args:
+            raise ValueError("Select at least one attribute.")
+
+        if len(args) > 1 and flat:
+            raise ValueError("'flat' is not valid when attrs_as_tuples is called with more than one attribute.")
+
+        if flat:
+            return [getattr(item, args[0]) for item in self.items]
+
+        return [tuple(getattr(item, field) for field in args) for item in self.items]
 
     def __repr__(self) -> str:
         parent = f"{self.parent_class.__name__}" if self.parent_class else ""

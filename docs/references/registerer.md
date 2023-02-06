@@ -11,5 +11,5 @@
         - register
         - unregister
         - filter
-        - represent
+        - attrs_as_tuples
       show_root_heading: false

@@ -90,7 +90,16 @@ def test_function_attribute_setter(simple_registry: Registerer):
 
     assert simple_registry.filter(lambda f: False).items == []
     assert simple_registry.filter(lambda f: True).items == simple_registry.items
-    assert simple_registry.represent("slug", "branch") == [["test_db", "test"], ["prod_db", "prod"]]
+
+    assert simple_registry.attrs_as_tuples("slug", "branch") == [("test_db", "test"), ("prod_db", "prod")]
+    assert simple_registry.attrs_as_tuples("slug") == [("test_db",), ("prod_db",)]
+    assert simple_registry.attrs_as_tuples("slug", flat=True) == ["test_db", "prod_db"]
+
+    with pytest.raises(ValueError):
+        simple_registry.attrs_as_tuples("slug", "branch", flat=True)
+
+    with pytest.raises(ValueError):
+        simple_registry.attrs_as_tuples()
 
 
 def test_unregister(simple_registry: Registerer, function):

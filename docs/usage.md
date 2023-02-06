@@ -79,8 +79,8 @@ assert Cat.slug == animal_registry["kitty"].slug == "kitty"
 
 # use this for django choices, etc.
 assert (
-    animal_registry.represent("slug", "__name__") ==
-    [['Sheep', 'Sheep'], ['kitty', 'Cat']]
+    animal_registry.attrs_as_tuples("slug", "__name__") ==
+    [('Sheep', 'Sheep'), ('kitty', 'Cat')]
 )
 
 ```
@@ -137,7 +137,7 @@ When you are registering an item, the identifier slug could be on of these value
 
 You may need to map the registered items to an object on Database. Having the items as choices on model field will help you with building admin and form choices.
 
-If you need to create choices for your model field, use `registry.represent` method.
+If you need to create choices for your model field, use `registry.attrs_as_tuples` method.
 
 For example:
 
@@ -145,7 +145,7 @@ For example:
 
 class EventStep(models.Model):
     _step_slug = models.CharField(
-        choices=registry.represent("slug", "name"), max_length=100
+        choices=registry.attrs_as_tuples("slug", "name"), max_length=100
     )
 
 ```
