@@ -21,7 +21,7 @@ repos:
 
   # isort and black should be after other python hooks
   - repo: https://github.com/pycqa/isort # configuration in pyproject.toml
-    rev: "5.11.4"
+    rev: "5.12.0"
     hooks:
       - id: isort
         name: isort (python)
@@ -33,7 +33,7 @@ repos:
       - id: black
 
   - repo: https://github.com/python-poetry/poetry
-    rev: "1.3.0"
+    rev: "1.3.2"
     hooks:
       - id: poetry-check
 
