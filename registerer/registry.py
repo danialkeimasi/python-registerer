@@ -45,7 +45,7 @@ class Registerer(typing.Generic[T]):
 
         for validator in self.validators:
             if not isinstance(validator, RegistryValidator):
-                raise RegistryCreationError("validator items should be function or object of RegistryValidator.")
+                raise RegistryCreationError("validator items should be object of RegistryValidator.")
 
     @property
     def items(self) -> typing.List[typing.Type[T]]:
