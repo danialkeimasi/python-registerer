@@ -13,11 +13,11 @@ class Registerer(typing.Generic[T]):
 
     def __init__(
         self,
-        parent_class: typing.Optional[typing.Type[T]] = None,
+        parent_class: typing.Optional[type[T]] = None,
         *,
         slug_attr: typing.Optional[str] = None,
         max_size: typing.Optional[int] = None,
-        validators: typing.Optional[typing.List[RegistryValidator]] = None,
+        validators: typing.Optional[list[RegistryValidator]] = None,
     ):
         """
         Args:
@@ -34,11 +34,11 @@ class Registerer(typing.Generic[T]):
         Raises:
             RegistryCreationError: Can't create proper registry object.
         """
-        self._registry_dict: typing.Dict[str, typing.Type[T]] = {}
-        self.parent_class: typing.Optional[typing.Type[T]] = parent_class
+        self._registry_dict: dict[str, type[T]] = {}
+        self.parent_class: typing.Optional[type[T]] = parent_class
         self.max_size: typing.Optional[int] = max_size
         self.slug_attr: typing.Optional[str] = slug_attr
-        self.validators: typing.List = validators if validators else []
+        self.validators: list = validators if validators else []
 
         if self.max_size is not None and (not isinstance(self.max_size, int) or self.max_size <= 0):
             raise RegistryCreationError("max_size should be a int bigger than zero or None.")
@@ -48,7 +48,7 @@ class Registerer(typing.Generic[T]):
                 raise RegistryCreationError("validator items should be object of RegistryValidator.")
 
     @property
-    def items(self) -> typing.List[typing.Type[T]]:
+    def items(self) -> list[type[T]]:
         """
         Get actual registered items as list (classes or functions)
         """
@@ -60,7 +60,7 @@ class Registerer(typing.Generic[T]):
         """
         return slug in self._registry_dict
 
-    def __getitem__(self, registry_slug: str) -> typing.Type[T]:
+    def __getitem__(self, registry_slug: str) -> type[T]:
         """
         get the registered item by slug
         """
@@ -69,13 +69,13 @@ class Registerer(typing.Generic[T]):
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
-    def get(self, registry_slug: str, default: typing.Optional[typing.Any] = None) -> typing.Optional[typing.Type[T]]:
+    def get(self, registry_slug: str, default: typing.Optional[typing.Any] = None) -> typing.Optional[type[T]]:
         """
         Return the value for key if key is in the registry, else default.
         """
         return self._registry_dict.get(registry_slug, default)
 
-    def validate(self, item: typing.Type[T]):
+    def validate(self, item: type[T]):
         """Validate the item during registration.
 
         Args:
@@ -164,7 +164,7 @@ class Registerer(typing.Generic[T]):
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
-    def filter(self, function: typing.Callable[[typing.Type[T]], bool]) -> "Registerer":
+    def filter(self, function: typing.Callable[[type[T]], bool]) -> "Registerer":
         """
         Filter the registry with given callback and create
         another subset registry with desired items in it.
@@ -173,7 +173,7 @@ class Registerer(typing.Generic[T]):
         registry._registry_dict = {slug: item for slug, item in registry._registry_dict.items() if function(item)}
         return registry
 
-    def attrs_as_tuples(self, *args: str, flat: bool = False) -> typing.List[typing.Tuple]:
+    def attrs_as_tuples(self, *args: str, flat: bool = False) -> list[tuple]:
         """
         Returns list of tuples of based on attributes of registered items.
         You can use this to create choices for Django model field.

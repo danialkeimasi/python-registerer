@@ -15,21 +15,21 @@ classifiers = [
 "Bug Tracker" = "https://github.com/danialkeimasi/python-registerer/issues"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 
 [tool.poetry.group.dev.dependencies]
-black = "22.10.0"  # If you updated this, also update in .pre-commit-config.yaml
-pre-commit = "2.20.0"
-pytest = "^7.2.0"
-pytest-cov = "^4.0.0"
+black = "25.1.0"  # If you updated this, also update in .pre-commit-config.yaml
+pre-commit = "^4.3.0"
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.4.2"
-mkdocs-material = "^8.5.11"
-mkdocstrings = {extras = ["python"], version = "^0.19.1"}
-markdown-exec = "^1.0.0"
-Pillow = "^9.3.0"
-CairoSVG = "^2.5.2"
+mkdocs = "^1.6.1"
+mkdocs-material = "^9.6.19"
+mkdocstrings = {extras = ["python"], version = "0.30.0"}
+markdown-exec = "^1.11.0"
+Pillow = "^11.3.0"
+CairoSVG = "^2.8.2"
 
 [tool.poetry-dynamic-versioning]
 enable = true
