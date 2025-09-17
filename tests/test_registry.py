@@ -27,6 +27,11 @@ def test_function_register(simple_registry: Registerer, function):
     assert simple_registry.get("not_found") is None
     assert simple_registry.get("not_found", "default") == "default"
 
+    def default_function():
+        pass
+
+    assert simple_registry.get("not_found", default_function) == default_function
+
 
 def test_class_register(parent_registry: Registerer, Child, Parent):
     parent_registry.register("child")(Child)

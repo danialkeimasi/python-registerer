@@ -1,14 +1,24 @@
 import copy
 import inspect
+import sys
 import typing
+from collections.abc import Hashable
 
 from registerer.exceptions import ItemNotRegistered, RegistrationError, RegistryCreationError
 from registerer.validators import RegistryValidator
 
-T = typing.TypeVar("T")
+if sys.version_info >= (3, 13):  # PEP 696: default type parameter support
+    K = typing.TypeVar("K", bound=Hashable, default=str)  # type: ignore[call-arg]
+    T = typing.TypeVar("T", default=typing.Any)  # type: ignore[call-arg]
+else:
+    K = typing.TypeVar("K", bound=Hashable)
+    T = typing.TypeVar("T")
+
+# Default type for `get`'s fallback
+S = typing.TypeVar("S")
 
 
-class Registerer(typing.Generic[T]):
+class Registerer(typing.Generic[K, T]):
     """A utility that can be used to create a registry object to register class or functions."""
 
     def __init__(
@@ -34,7 +44,7 @@ class Registerer(typing.Generic[T]):
         Raises:
             RegistryCreationError: Can't create proper registry object.
         """
-        self._registry_dict: dict[str, type[T]] = {}
+        self._registry_dict: dict[K, type[T]] = {}
         self.parent_class: typing.Optional[type[T]] = parent_class
         self.max_size: typing.Optional[int] = max_size
         self.slug_attr: typing.Optional[str] = slug_attr
@@ -54,13 +64,13 @@ class Registerer(typing.Generic[T]):
         """
         return list(self._registry_dict.values())
 
-    def is_registered(self, slug: str) -> bool:
+    def is_registered(self, slug: K) -> bool:
         """
         Is the slug registered with any item?
         """
         return slug in self._registry_dict
 
-    def __getitem__(self, registry_slug: str) -> type[T]:
+    def __getitem__(self, registry_slug: K) -> type[T]:
         """
         get the registered item by slug
         """
@@ -69,11 +79,17 @@ class Registerer(typing.Generic[T]):
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
-    def get(self, registry_slug: str, default: typing.Optional[typing.Any] = None) -> typing.Optional[type[T]]:
+    @typing.overload
+    def get(self, registry_slug: K) -> typing.Optional[type[T]]: ...
+
+    @typing.overload
+    def get(self, registry_slug: K, default: S) -> typing.Union[type[T], S]: ...
+
+    def get(self, registry_slug: K, default: typing.Optional[S] = None) -> typing.Union[type[T], S, None]:
         """
         Return the value for key if key is in the registry, else default.
         """
-        return self._registry_dict.get(registry_slug, default)
+        return self._registry_dict.get(registry_slug, default)  # type: ignore[return-value]
 
     def validate(self, item: type[T]):
         """Validate the item during registration.
@@ -96,7 +112,7 @@ class Registerer(typing.Generic[T]):
         for validator in self.validators:
             validator(item)
 
-    def register(self, custom_slug: typing.Optional[str] = None, **kwargs):
+    def register(self, custom_slug: typing.Optional[K] = None, **kwargs):
         """Register a class or item to the registry
         example:
 
@@ -129,7 +145,7 @@ class Registerer(typing.Generic[T]):
         ```
 
         Args:
-            custom_slug (str): the unique identifier for the item.
+            custom_slug (K): the unique identifier for the item.
 
         Raises:
             ItemAlreadyRegistered: There is another item already registered with this slug.
@@ -137,7 +153,9 @@ class Registerer(typing.Generic[T]):
         """
 
         def _wrapper_function(item):
-            registry_slug = custom_slug or getattr(item, self.slug_attr or "", "") or item.__name__
+            # When no custom slug is provided, fall back to str-based slug.
+            # For non-str key types, callers should always pass `custom_slug`.
+            registry_slug: K = typing.cast(K, custom_slug or getattr(item, self.slug_attr or "", "") or item.__name__)
 
             if self.is_registered(registry_slug):
                 raise RegistrationError(f"There is another item already registered with slug='{registry_slug}'.")
@@ -155,7 +173,7 @@ class Registerer(typing.Generic[T]):
 
         return _wrapper_function
 
-    def unregister(self, registry_slug: str) -> None:
+    def unregister(self, registry_slug: K) -> None:
         """
         Unregister the item with given slug.
         """
@@ -164,7 +182,7 @@ class Registerer(typing.Generic[T]):
         except KeyError:
             raise ItemNotRegistered(f"The item with slug='{registry_slug}' is not registered.")
 
-    def filter(self, function: typing.Callable[[type[T]], bool]) -> "Registerer":
+    def filter(self, function: typing.Callable[[type[T]], bool]) -> "Registerer[K, T]":
         """
         Filter the registry with given callback and create
         another subset registry with desired items in it.
